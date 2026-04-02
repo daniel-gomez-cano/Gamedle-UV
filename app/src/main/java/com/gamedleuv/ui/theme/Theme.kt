@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = MediumViolet,
+    secondary = HighViolet,
+    tertiary = HeartColor,
+    background = Background,
+    onBackground = White,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -37,7 +39,7 @@ private val LightColorScheme = lightColorScheme(
 fun GamedleUVTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -47,7 +49,7 @@ fun GamedleUVTheme(
         }
 
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> DarkColorScheme
     }
 
     MaterialTheme(

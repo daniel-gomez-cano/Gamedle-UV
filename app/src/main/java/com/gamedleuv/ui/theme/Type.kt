@@ -6,15 +6,124 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+import androidx.compose.ui.text.font.*
+import com.gamedleuv.R
+
+
+val Play = FontFamily(
+    Font(R.font.play_regular, FontWeight.Normal),
+    Font(R.font.play_bold, FontWeight.Bold)
+)
+
+val Inter = FontFamily(
+    Font(R.font.inter_18pt_medium, FontWeight.Medium),
+    Font(R.font.inter_18pt_regular, FontWeight.Normal)
+)
+
 val Typography = Typography(
+
+    //title
+    titleLarge = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp
+    ),
+
+    titleMedium = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    ),
+
+    //label
+    labelLarge = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 25.sp
+    ),
+
+    labelMedium = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    ),
+
+    labelSmall = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp
+    ),
+
+
+    //Body
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = Inter,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        fontSize = 20.sp
+    ),
+
+    bodyMedium = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+
+    bodySmall = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
+    ),
+
+
+
+    //display
+
+    displayMedium = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp
     )
+
+
+)
+/*
+
+    PANTALLAS PRINCIPALES
+
+displayLarge
+displayMedium
+displaySmall
+
+headlineLarge
+headlineMedium
+headlineSmall
+
+titleLarge
+titleMedium
+titleSmall
+
+    CUERPO BASE
+
+bodyLarge
+bodyMedium
+bodySmall
+
+    UI/BOTONES
+
+labelLarge
+labelMedium
+labelSmall
+
+
+ */
+
+
+
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -31,4 +140,3 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-)
