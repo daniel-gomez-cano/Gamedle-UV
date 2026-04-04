@@ -25,9 +25,9 @@ fun AppButton(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.background) // Variante 1 (Figma)
-            .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(50.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
