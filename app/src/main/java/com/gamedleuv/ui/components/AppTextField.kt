@@ -49,14 +49,14 @@ fun AppTextField(
             cursorColor = MaterialTheme.colorScheme.secondary
         ),
 
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(50.dp),
 
         modifier = modifier
             .fillMaxWidth()
             .border(
                 2.dp,
                 MaterialTheme.colorScheme.secondary,
-                RoundedCornerShape(20.dp)
+                RoundedCornerShape(50.dp)
             )
     )
 }

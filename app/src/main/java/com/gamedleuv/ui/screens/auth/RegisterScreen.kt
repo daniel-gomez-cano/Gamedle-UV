@@ -21,7 +21,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.sp
 import com.gamedleuv.R
 
 @Composable
@@ -32,7 +31,7 @@ fun RegisterScreen() {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // 🔹 CONTENEDOR PRINCIPAL (FONDO)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +39,7 @@ fun RegisterScreen() {
         contentAlignment = Alignment.Center
     ) {
 
-        // 🔹 CARD CENTRAL (como en Figma)
+
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -58,12 +57,14 @@ fun RegisterScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                // Icono y titulo
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    // 🔹 HEADER
+
                     Icon(
                         painter = painterResource(id = R.drawable.virus),
                         contentDescription = "Logo",
@@ -96,7 +97,7 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 🔹 INPUTS
+                // Inputs
                 Text(
                     text = "Usuario",
                     style = MaterialTheme.typography.titleSmall,
@@ -150,7 +151,7 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 🔹 BOTÓN
+                // Boton componente
                 AppButton(
                     text = "Continuar",
                     onClick = {
@@ -163,7 +164,7 @@ fun RegisterScreen() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 🔹 FOOTER
+                // Fotter
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -177,7 +178,7 @@ fun RegisterScreen() {
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
-                            // 🔥 navegación login
+                            // Aqui va la ventana a la que dirige
                         }
                     )
                 }
