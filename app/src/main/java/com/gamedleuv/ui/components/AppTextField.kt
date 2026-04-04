@@ -31,7 +31,7 @@ fun AppTextField(
         placeholder = {
             Text(
                 text = placeholder,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                color = Color(0xFF3E3E3E)
             )
         },
 
@@ -40,23 +40,23 @@ fun AppTextField(
         ),
 
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedContainerColor = Color(0xFFE5E5E5),
+            unfocusedContainerColor = Color(0xFFE5E5E5),
 
-            focusedIndicatorColor = MaterialTheme.colorScheme.secondary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.secondary,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
 
             cursorColor = MaterialTheme.colorScheme.secondary
         ),
 
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(50.dp),
 
         modifier = modifier
             .fillMaxWidth()
             .border(
                 2.dp,
                 MaterialTheme.colorScheme.secondary,
-                RoundedCornerShape(20.dp)
+                RoundedCornerShape(50.dp)
             )
     )
 }

@@ -87,7 +87,13 @@ val Typography = Typography(
         fontFamily = Play,
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp
+    ),
+    displayLarge = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 36.sp
     )
+
 
 
 )
