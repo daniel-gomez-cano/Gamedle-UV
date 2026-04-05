@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.gamedleuv.ui.theme.GamedleUVTheme
@@ -19,6 +20,8 @@ import com.gamedleuv.ui.theme.GamedleUVTheme
 
 @Composable
 fun AppButton(
+    // si no se especifica style, se toma por defecto como:
+    style: TextStyle = MaterialTheme.typography.labelLarge,
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -26,7 +29,7 @@ fun AppButton(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp),
@@ -34,7 +37,7 @@ fun AppButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge,
+            style = style,
             color = MaterialTheme.colorScheme.onBackground
         )
     }
