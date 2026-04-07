@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.gamedleuv.R
+import com.gamedleuv.ui.components.VideoBg
 
 @Composable
 fun RegisterScreen() {
@@ -34,11 +35,11 @@ fun RegisterScreen() {
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
 
+        VideoBg(videoResId = R.raw.fondo_main, modifier = Modifier.fillMaxSize())
 
         Box(
             modifier = Modifier
@@ -185,6 +186,7 @@ fun RegisterScreen() {
             }
         }
     }
+
 }
 
 @Preview(
