@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,10 @@ import com.gamedleuv.ui.theme.GamedleUVTheme
 
 @Composable
 fun ProfileButton(
+    img: Int = R.drawable.profile,
+    transparent: Boolean = false,
+    color: Color = MaterialTheme.colorScheme.secondary,
+    iconSize: androidx.compose.ui.unit.Dp = 24.dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -27,19 +32,23 @@ fun ProfileButton(
         modifier = modifier
             .size(48.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .background(
+                if (transparent) Color.Transparent
+                else MaterialTheme.colorScheme.background
+            )
             .border(
-                2.dp,
-                MaterialTheme.colorScheme.secondary,
+                4.dp,
+                color,
                 RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(R.drawable.profile),
-            contentDescription = "Profile",
-            tint = MaterialTheme.colorScheme.secondary
+            painter = painterResource(img),
+            contentDescription = "icono",
+            tint = color,
+            modifier = Modifier.size(iconSize)
         )
     }
 }
