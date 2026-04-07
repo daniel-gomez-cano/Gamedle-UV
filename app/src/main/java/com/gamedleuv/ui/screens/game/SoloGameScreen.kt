@@ -27,7 +27,9 @@ import com.gamedleuv.ui.theme.GamedleUVTheme
 @Composable
 fun SoloGameScreen(
     username: String,
+    avatar: Int,
     racha: Int,
+    gameImage: Int,
     actual_lives: Int,
     maxLives: Int,
     listGames: List<String>,
@@ -36,7 +38,7 @@ fun SoloGameScreen(
 
     var selectedOption by remember { mutableStateOf(selectedOption) }
 
-    // Fondo negro que ocupa toda la pantalla
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -48,13 +50,14 @@ fun SoloGameScreen(
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
 
-            // ── HEADER: ícono + título GAMEDLE ──────────────────────────────
+            // HEADER
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
 
             ) {
+                //Icono de virus
                 Icon(
                     painter = painterResource(id = R.drawable.virus),
                     contentDescription = "logo",
@@ -64,6 +67,7 @@ fun SoloGameScreen(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                //Titulo GAMEDLE
                 Text(
                     text = "GAMEDLE",
                     style = MaterialTheme.typography.headlineLarge.copy(
@@ -79,18 +83,18 @@ fun SoloGameScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── FILA: avatar + nombre de usuario | corazones ────────────────
+            // Fila general debajo del titulo
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Avatar pequeño + nombre de usuario
+                //Fila solo de la foto de perfil del usuario y su nombre
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Placeholder de avatar circular
+
 
                     Icon(
-                        painter = painterResource(id = R.drawable.profile),
+                        painter = painterResource(id = avatar),
                         contentDescription = "avatar",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
@@ -118,23 +122,21 @@ fun SoloGameScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // ── IMAGEN DEL JUEGO (~50% de la pantalla) ──────────────────────
-            // weight(1f) hace que la imagen tome todo el espacio libre disponible
+            // IMAGEN DEL JUEGO
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = gameImage),
                 contentDescription = "game image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.6f) // Ajusta este valor (0.25 a 0.70) según prefieras
+                    .fillMaxHeight(0.6f)
                     .clip(RoundedCornerShape(8.dp))
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // Opcional: para ver límites
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── FILA: botón Saltar | botón Pista | Racha ────────────────────
-            // Los botones y la racha van en la misma fila horizontal
+            // FILA de botones y racha
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -148,9 +150,6 @@ fun SoloGameScreen(
                         .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
                         .weight(1f)
                         .height(50.dp)
-
-
-
                 )
 
                 AppButton(
@@ -179,13 +178,13 @@ fun SoloGameScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // ── CAMPO DE BÚSQUEDA + BOTÓN FLECHA ────────────────────────────
+            // Fila del campo de busqueda y la flecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Dropdown ocupa todo el ancho menos el botón de flecha
+                //Campo de busqueda
                 DropdownField(
                     options = listGames,
                     selected = selectedOption,
@@ -193,6 +192,7 @@ fun SoloGameScreen(
                     modifier = Modifier.weight(1f)
                 )
 
+                //Boton flecha
                 ProfileButton(
                     img = R.drawable.arrow,
                     transparent = true,
@@ -219,7 +219,11 @@ fun SoloGameScreen(
 fun PreviewSoloGameScreen() {
     GamedleUVTheme(darkTheme = true) {
         SoloGameScreen(
+
+            // Aqui van todos los parametros de la implementacion backend
             username = "Kano065",
+            avatar = R.drawable.profile,
+            gameImage = R.drawable.ic_launcher_background,
             racha = 96,
             actual_lives = 2,
             maxLives = 5,
