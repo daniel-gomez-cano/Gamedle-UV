@@ -127,7 +127,7 @@ fun LoginScreen() {
     AppButton(
      text = "Continuar",
      onClick = {
-      // lógica registro
+      // lógica login
      },
      modifier = Modifier
       .fillMaxWidth()
@@ -143,7 +143,7 @@ fun LoginScreen() {
      style = MaterialTheme.typography.titleSmall,
      text = "¿Olvidó su contraseña?",
      onClick = {
-      // lógica registro
+      // lógica del recuperar su contraseña
      },
      modifier = Modifier
       .fillMaxWidth()
