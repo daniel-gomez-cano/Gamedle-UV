@@ -22,6 +22,7 @@ import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
 import com.gamedleuv.ui.components.ProfileButton
+import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.theme.GamedleUVTheme
 
 @Composable
@@ -44,6 +45,7 @@ fun SoloGameScreen(
             .fillMaxSize()
             .background(Color(0xFF000000))
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
