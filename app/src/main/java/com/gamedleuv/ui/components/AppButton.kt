@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,13 +24,17 @@ fun AppButton(
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.labelLarge,
     text: String,
+    transparent: Boolean = false,
     onClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50.dp))
+            .background(
+                if (transparent) Color.Transparent
+                else MaterialTheme.colorScheme.surface
+            )
+            .border(4.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center

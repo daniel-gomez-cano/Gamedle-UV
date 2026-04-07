@@ -22,6 +22,12 @@ val Inter = FontFamily(
 
 val Typography = Typography(
 
+    //headline
+    headlineLarge = TextStyle(
+        fontFamily = Play,
+        fontWeight = FontWeight.Bold,
+        fontSize = 56.sp
+    ),
     //title
     titleLarge = TextStyle(
         fontFamily = Play,
