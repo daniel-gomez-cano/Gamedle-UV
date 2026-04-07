@@ -86,6 +86,7 @@ fun ProfileScreen() {
             Spacer(modifier = Modifier.height(64.dp))
 
             //Foto de perfil
+            //Esto es PROVISIONAL, tendrá que cambiar bastante con la lógica de recuperar la imagen subida por el user
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = "Foto de perfil",
@@ -97,6 +98,7 @@ fun ProfileScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             //Username
+            //Aquí también deberá cambiar por la lógica de obtener el username del usuario
             Text(
                 text = "userName",
                 style = MaterialTheme.typography.displayMedium.copy(
@@ -111,7 +113,7 @@ fun ProfileScreen() {
             AppButton(
                 text = "Subir Foto de Perfil",
                 transparent = true,
-                onClick = {//Hay que hacer la implementación
+                onClick = {//Hay que hacer la implementación de subir foto de perfil
 
                 },
                 modifier = Modifier
@@ -126,7 +128,7 @@ fun ProfileScreen() {
                 text = "Cambiar Contraseña",
                 transparent = true,
                 onClick = {
-                    //Hay que hacer la implementación
+                    //Se redirige a las pantallas de recuperar contraseña
                 },
                 modifier = Modifier
                     .fillMaxWidth()
