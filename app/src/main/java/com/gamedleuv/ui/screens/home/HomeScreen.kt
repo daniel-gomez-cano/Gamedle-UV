@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gamedleuv.R
 import com.gamedleuv.ui.theme.GamedleUVTheme
+import com.gamedleuv.ui.components.MenuCard
+
 
 @Composable
 fun HomeScreen(
@@ -121,61 +123,7 @@ fun HomeScreen(
     }
 }
 
-@Composable
-fun MenuCard(
-    title: String,
-    description: String,
-    icon: Int,
-    onClick: () -> Unit
-) {
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(18.dp)
-            )
-            .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF111111))
-            .clickable { onClick() }
-            .padding(20.dp)
-    ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(42.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color.White
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = description,
-                    fontSize = 14.sp,
-                    color = Color.LightGray
-                )
-            }
-        }
-    }
-}
 
 @Preview(showSystemUi = true)
 @Composable
