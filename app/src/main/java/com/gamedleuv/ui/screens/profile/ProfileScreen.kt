@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppButton
+import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.screens.auth.LoginScreen
 import com.gamedleuv.ui.theme.GamedleUVTheme
 
@@ -34,8 +35,8 @@ fun ProfileScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF1E1E1E))
     ) {
+        VideoBg(videoResId = R.raw.fondo_auth, modifier = Modifier.fillMaxSize())
 
         Column(
             modifier = Modifier
