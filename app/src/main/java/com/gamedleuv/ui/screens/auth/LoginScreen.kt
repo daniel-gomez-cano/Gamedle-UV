@@ -21,11 +21,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
 
  var username by remember { mutableStateOf("") }
  var password by remember { mutableStateOf("") }
@@ -128,6 +130,7 @@ fun LoginScreen() {
     AppButton(
      text = "Continuar",
      onClick = {
+      navController.navigate(Routes.HOME)
       // lógica login
      },
      modifier = Modifier
@@ -144,6 +147,7 @@ fun LoginScreen() {
      style = MaterialTheme.typography.titleSmall,
      text = "¿Olvidó su contraseña?",
      onClick = {
+      navController.navigate(Routes.RECOVER)
       // lógica del recuperar su contraseña
      },
      modifier = Modifier
@@ -167,22 +171,11 @@ fun LoginScreen() {
       text = "Registrese",
       color = MaterialTheme.colorScheme.secondary,
       modifier = Modifier.clickable {
-       // Aqui va la ventana a la que dirige
+       navController.navigate(Routes.REGISTER)
       }
      )
     }
    }
   }
- }
-}
-
-@Preview(
- showBackground = true,
- uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewLoginScreen() {
- GamedleUVTheme {
-  LoginScreen()
  }
 }

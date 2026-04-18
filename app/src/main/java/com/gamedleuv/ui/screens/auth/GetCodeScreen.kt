@@ -21,11 +21,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun GetCodeScreen() {
+fun GetCodeScreen(navController: NavController) {
     // Revisar esta lógica de recibir el código por correo.
     var emailCode by remember { mutableStateOf("") }
 
@@ -115,6 +117,7 @@ fun GetCodeScreen() {
                 AppButton(
                     text = "Recuperar",
                     onClick = {
+                        navController.navigate(Routes.NEWPASSWORD)
                         // lógica registro
                     },
                     modifier = Modifier
@@ -145,16 +148,5 @@ fun GetCodeScreen() {
                 }
             }
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewGetCodeScreen() {
-    GamedleUVTheme {
-        GetCodeScreen()
     }
 }

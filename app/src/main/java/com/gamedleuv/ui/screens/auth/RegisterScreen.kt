@@ -21,11 +21,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController) {
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -156,6 +158,7 @@ fun RegisterScreen() {
                 AppButton(
                     text = "Continuar",
                     onClick = {
+                        navController.navigate(Routes.HOME)
                         // lógica registro
                     },
                     modifier = Modifier
@@ -179,7 +182,7 @@ fun RegisterScreen() {
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
-                            // Aqui va la ventana a la que dirige
+                            navController.navigate(Routes.LOGIN)
                         }
                     )
                 }
@@ -187,15 +190,4 @@ fun RegisterScreen() {
         }
     }
 
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewRegisterScreen() {
-    GamedleUVTheme {
-        RegisterScreen()
-    }
 }

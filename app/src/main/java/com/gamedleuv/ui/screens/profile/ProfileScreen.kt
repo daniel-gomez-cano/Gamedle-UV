@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.VideoBg
@@ -30,7 +31,7 @@ import com.gamedleuv.ui.screens.auth.LoginScreen
 import com.gamedleuv.ui.theme.GamedleUVTheme
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
@@ -136,16 +137,5 @@ fun ProfileScreen() {
                     .height(70.dp)
             )
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewProfileScreen() {
-    GamedleUVTheme {
-        ProfileScreen()
     }
 }
