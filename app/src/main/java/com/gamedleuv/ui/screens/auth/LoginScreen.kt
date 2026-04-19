@@ -21,13 +21,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.gamedleuv.R
+import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.viewmodel.AuthUiState
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLoginSuccess: () -> Unit) {
 
- var username by remember { mutableStateOf("") }
+ val uiState by viewModel.uiState.collectAsState()
+
+ var email by remember { mutableStateOf("") }
  var password by remember { mutableStateOf("") }
 
  Box(
@@ -102,9 +108,9 @@ fun LoginScreen() {
      color = MaterialTheme.colorScheme.onBackground
     )
     AppTextField(
-     value = username,
-     onValueChange = { username = it },
-     placeholder = "Ingresar usuario",
+     value = email,
+     onValueChange = { email = it },
+     placeholder = "Ingrese su correo",
 
      )
 
@@ -115,10 +121,11 @@ fun LoginScreen() {
      style = MaterialTheme.typography.titleSmall,
      color = MaterialTheme.colorScheme.onBackground
     )
-    AppTextField(
+    AppPasswordField(
      value = password,
      onValueChange = { password = it },
-     placeholder = "Ingresar contraseña"
+     placeholder = "Ingrese su contraseña",
+     visualTransformation = PasswordVisualTransformation()
     )
 
     Spacer(modifier = Modifier.height(36.dp))
@@ -128,12 +135,22 @@ fun LoginScreen() {
     AppButton(
      text = "Continuar",
      onClick = {
-      // lógica login
+      viewModel.login(email, password)
      },
      modifier = Modifier
       .fillMaxWidth()
       .height(70.dp)
     )
+
+    when (uiState) {
+     is AuthUiState.Idle -> {}
+     is AuthUiState.Loading -> CircularProgressIndicator()
+     is AuthUiState.Success -> {
+      Text((uiState as AuthUiState.Success).msg)
+      onLoginSuccess() // aquí navegas a tu pantalla principal
+     }
+     is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -176,6 +193,9 @@ fun LoginScreen() {
  }
 }
 
+/* Para implementar el preview tendría que hacer datos falsos del viewModel
+y eso implica un fakeAuthRepositoryImpl
+
 @Preview(
  showBackground = true,
  uiMode = Configuration.UI_MODE_NIGHT_YES
@@ -186,3 +206,4 @@ fun PreviewLoginScreen() {
   LoginScreen()
  }
 }
+*/

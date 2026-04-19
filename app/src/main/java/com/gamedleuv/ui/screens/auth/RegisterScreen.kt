@@ -21,11 +21,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.gamedleuv.R
+import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.viewmodel.AuthUiState
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier) {
+
+    val uiState by viewModel.uiState.collectAsState()
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -131,10 +137,11 @@ fun RegisterScreen() {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                AppTextField(
+                AppPasswordField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = "Ingresar contraseña"
+                    placeholder = "Ingresar contraseña",
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -156,12 +163,25 @@ fun RegisterScreen() {
                 AppButton(
                     text = "Continuar",
                     onClick = {
-                        // lógica registro
+                        if (password == confirmPassword) {
+                            viewModel.register(email, password, username)
+                        } else {
+                            // Esto es provisional, no se enojen
+                            println("Las contraseñas no coinciden")
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                 )
+                when (uiState) {
+                    is AuthUiState.Idle -> {}
+                    is AuthUiState.Loading -> CircularProgressIndicator()
+                    is AuthUiState.Success -> Text((uiState as AuthUiState.Success).msg)
+                    is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
+                }
+
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -189,6 +209,9 @@ fun RegisterScreen() {
 
 }
 
+/*
+Para implementar el preview tendría que crear un fakeAuthRepositoryImpl
+
 @Preview(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
@@ -196,6 +219,8 @@ fun RegisterScreen() {
 @Composable
 fun PreviewRegisterScreen() {
     GamedleUVTheme {
-        RegisterScreen()
+        RegisterScreen(viewModel = AuthViewModel())
     }
 }
+
+*/
