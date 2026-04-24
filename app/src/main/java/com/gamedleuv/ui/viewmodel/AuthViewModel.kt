@@ -39,6 +39,10 @@ class AuthViewModel(
         }
     }
 
+    fun resetState() {
+        _uiState.value = AuthUiState.Idle
+    }
+
 }
 
 sealed class AuthUiState {

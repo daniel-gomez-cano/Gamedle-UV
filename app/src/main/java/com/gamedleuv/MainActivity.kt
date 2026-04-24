@@ -5,9 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,11 +22,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.remember
 import com.gamedleuv.ui.screens.auth.GetCodeScreen
-import com.gamedleuv.ui.screens.auth.LoginScreen
 import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
-import com.gamedleuv.ui.screens.auth.RegisterScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
 
@@ -38,25 +35,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GamedleUVTheme {
-                AppNavigation() // inicializamos la funcion para poder navegar tranquilamente
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // Crear dependencias manualmente
-                    val repo = AuthRepositoryImpl(
-                        firebaseAuth = FirebaseAuth.getInstance(),
-                        firestore = FirebaseFirestore.getInstance()
-                    )
-                    val registerUseCase = RegisterUserUseCase(repo)
-                    val loginUseCase = LoginUserUseCase(repo)
-
-                    val authViewModel = AuthViewModel(registerUseCase, loginUseCase)
-
-                    LoginScreen(
-                        viewModel = authViewModel,
-                        modifier = Modifier.padding(innerPadding),
-                        onLoginSuccess = {}
-                    )
-
-                }
+                AppNavigation()
             }
         }
     }
@@ -65,6 +44,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() { //App navigation nos maneja la conexion entre ventanas
     val navController = rememberNavController()
+    val repo = remember {
+        AuthRepositoryImpl(
+            firebaseAuth = FirebaseAuth.getInstance(),
+            firestore = FirebaseFirestore.getInstance()
+        )
+    }
+    val registerUseCase = remember { RegisterUserUseCase(repo) }
+    val loginUseCase = remember { LoginUserUseCase(repo) }
+    val authViewModel = remember { AuthViewModel(registerUseCase, loginUseCase) }
 
     NavHost(
         navController = navController,
@@ -72,11 +60,17 @@ fun AppNavigation() { //App navigation nos maneja la conexion entre ventanas
     ) {
 
         composable(Routes.LOGIN) {
-            LoginScreen(navController) //en caso de activarse va directo a login
+            LoginScreen(
+                navController = navController,
+                viewModel = authViewModel
+            )
         }
 
         composable(Routes.REGISTER){
-            RegisterScreen(navController) // en caso de activarse va directo a register
+            RegisterScreen(
+                navController = navController,
+                viewModel = authViewModel
+            )
         }
 
         composable(Routes.HOME){ // En casos donde la pantalla requiere de datos para funcionar, se deben asignar todos ellos (este es de prueba, luego toca poner que capture los datos del usuario de la bd)
