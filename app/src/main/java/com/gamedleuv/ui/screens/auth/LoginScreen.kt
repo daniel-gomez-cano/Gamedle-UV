@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
@@ -22,22 +23,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.viewmodel.AuthUiState
 import com.gamedleuv.ui.viewmodel.AuthViewModel
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLoginSuccess: () -> Unit) {
-
- val uiState by viewModel.uiState.collectAsState()
+fun LoginScreen(
+ navController: NavController? = null,
+ modifier: Modifier = Modifier,
+ viewModel: AuthViewModel? = null
+) {
+ val uiState by (viewModel?.uiState?.collectAsState() ?: remember { mutableStateOf(AuthUiState.Idle) })
 
  var email by remember { mutableStateOf("") }
  var password by remember { mutableStateOf("") }
 
+ LaunchedEffect(uiState) {
+  if (uiState is AuthUiState.Success) {
+   navController?.navigate(Routes.HOME) {
+    popUpTo(Routes.LOGIN) {
+     inclusive = true
+    }
+    launchSingleTop = true
+   }
+   viewModel?.resetState()
+  }
+ }
+
  Box(
-  modifier = Modifier
+      modifier = modifier
    .fillMaxSize(),
   contentAlignment = Alignment.Center
  ) {
@@ -135,7 +153,7 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
     AppButton(
      text = "Continuar",
      onClick = {
-      viewModel.login(email, password)
+      viewModel?.login(email, password)
      },
      modifier = Modifier
       .fillMaxWidth()
@@ -147,7 +165,6 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
      is AuthUiState.Loading -> CircularProgressIndicator()
      is AuthUiState.Success -> {
       Text((uiState as AuthUiState.Success).msg)
-      onLoginSuccess() // aquí navegas a tu pantalla principal
      }
      is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
     }
@@ -161,7 +178,7 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
      style = MaterialTheme.typography.titleSmall,
      text = "¿Olvidó su contraseña?",
      onClick = {
-      // lógica del recuperar su contraseña
+      navController?.navigate(Routes.RECOVER)
      },
      modifier = Modifier
       .fillMaxWidth()
@@ -184,7 +201,7 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
       text = "Regístrate",
       color = MaterialTheme.colorScheme.secondary,
       modifier = Modifier.clickable {
-       // Aqui va la ventana a la que dirige
+       navController?.navigate(Routes.REGISTER)
       }
      )
     }
@@ -192,9 +209,6 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
   }
  }
 }
-
-/* Para implementar el preview tendría que hacer datos falsos del viewModel
-y eso implica un fakeAuthRepositoryImpl
 
 @Preview(
  showBackground = true,
@@ -206,4 +220,4 @@ fun PreviewLoginScreen() {
   LoginScreen()
  }
 }
-*/
+

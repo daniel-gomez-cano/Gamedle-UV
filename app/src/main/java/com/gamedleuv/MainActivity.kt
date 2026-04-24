@@ -15,11 +15,22 @@ import com.gamedleuv.data.repository.AuthRepositoryImpl
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import com.gamedleuv.ui.screens.auth.LoginScreen
+import com.gamedleuv.ui.navigation.Routes
 import com.gamedleuv.ui.screens.auth.RegisterScreen
 import com.gamedleuv.ui.theme.GamedleUVTheme
 import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.gamedleuv.ui.screens.auth.GetCodeScreen
+import com.gamedleuv.ui.screens.auth.LoginScreen
+import com.gamedleuv.ui.screens.auth.NewPasswordScreen
+import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
+import com.gamedleuv.ui.screens.auth.RegisterScreen
+import com.gamedleuv.ui.screens.home.HomeScreen
+import com.gamedleuv.ui.screens.profile.ProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +38,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GamedleUVTheme {
+                AppNavigation() // inicializamos la funcion para poder navegar tranquilamente
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // Crear dependencias manualmente
                     val repo = AuthRepositoryImpl(
@@ -51,17 +63,47 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavigation() { //App navigation nos maneja la conexion entre ventanas
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GamedleUVTheme {
-        Greeting("Android")
+    NavHost(
+        navController = navController,
+        startDestination = Routes.LOGIN //declaramos como ventana inicial la de Login
+    ) {
+
+        composable(Routes.LOGIN) {
+            LoginScreen(navController) //en caso de activarse va directo a login
+        }
+
+        composable(Routes.REGISTER){
+            RegisterScreen(navController) // en caso de activarse va directo a register
+        }
+
+        composable(Routes.HOME){ // En casos donde la pantalla requiere de datos para funcionar, se deben asignar todos ellos (este es de prueba, luego toca poner que capture los datos del usuario de la bd)
+            HomeScreen(
+                username = "EjemplitoLindo",
+                avatar = R.drawable.profile,
+                streak = 5,
+                onSoloClick = {},
+                onMultiClick = {},
+                navController
+            )
+        }
+
+        composable(Routes.PROFILE){
+            ProfileScreen(navController)
+        }
+
+        composable(Routes.RECOVER){
+            RecoverPasswordScreen(navController)
+        }
+
+        composable(Routes.GETCODE){
+            GetCodeScreen(navController)
+        }
+
+        composable(Routes.NEWPASSWORD){
+            NewPasswordScreen(navController)
+        }
     }
 }

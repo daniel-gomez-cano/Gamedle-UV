@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
@@ -22,25 +23,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.viewmodel.AuthUiState
 import com.gamedleuv.ui.viewmodel.AuthViewModel
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun RegisterScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier) {
+fun RegisterScreen(
+    navController: NavController? = null,
+    modifier: Modifier = Modifier,
+    viewModel: AuthViewModel? = null
+) {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by (viewModel?.uiState?.collectAsState() ?: remember { mutableStateOf(AuthUiState.Idle) })
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var validationError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(uiState) {
+        if (uiState is AuthUiState.Success) {
+            navController?.navigate(Routes.LOGIN) {
+                popUpTo(Routes.REGISTER) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+            viewModel?.resetState()
+        }
+    }
 
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
@@ -164,16 +184,20 @@ fun RegisterScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier) {
                     text = "Continuar",
                     onClick = {
                         if (password == confirmPassword) {
-                            viewModel.register(email, password, username)
+                            validationError = null
+                            viewModel?.register(email, password, username)
                         } else {
-                            // Esto es provisional, no se enojen
-                            println("Las contraseñas no coinciden")
+                            validationError = "Las contraseñas no coinciden"
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                 )
+                if (validationError != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(validationError.orEmpty(), color = Color.Red)
+                }
                 when (uiState) {
                     is AuthUiState.Idle -> {}
                     is AuthUiState.Loading -> CircularProgressIndicator()
@@ -199,7 +223,12 @@ fun RegisterScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier) {
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
-                            // Aqui va la ventana a la que dirige
+                            navController?.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.REGISTER) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -209,9 +238,6 @@ fun RegisterScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier) {
 
 }
 
-/*
-Para implementar el preview tendría que crear un fakeAuthRepositoryImpl
-
 @Preview(
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
@@ -219,8 +245,8 @@ Para implementar el preview tendría que crear un fakeAuthRepositoryImpl
 @Composable
 fun PreviewRegisterScreen() {
     GamedleUVTheme {
-        RegisterScreen(viewModel = AuthViewModel())
+        RegisterScreen()
     }
 }
 
-*/
+
