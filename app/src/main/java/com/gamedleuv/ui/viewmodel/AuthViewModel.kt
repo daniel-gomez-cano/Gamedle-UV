@@ -16,6 +16,17 @@ class AuthViewModel(
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState
 
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = loginUser(email, password)
+            _uiState.value = if (result.isSuccess) {
+                AuthUiState.Success("Sesión iniciada :D")
+            } else {
+                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")
+            }
+        }
+    }
     fun register(email: String, password: String, username: String) {
         viewModelScope.launch {
             _uiState.value = AuthUiState.Loading
@@ -28,17 +39,6 @@ class AuthViewModel(
         }
     }
 
-    fun login(email: String, password: String) {
-        viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            val result = loginUser(email, password)
-            _uiState.value = if (result.isSuccess) {
-                AuthUiState.Success("Sesión iniciada papu")
-            } else {
-                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")
-            }
-        }
-    }
 }
 
 sealed class AuthUiState {

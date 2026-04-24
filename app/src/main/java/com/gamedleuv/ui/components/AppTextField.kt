@@ -36,7 +36,7 @@ fun AppTextField(
         },
 
         textStyle = MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.secondary
         ),
 
         colors = TextFieldDefaults.colors(

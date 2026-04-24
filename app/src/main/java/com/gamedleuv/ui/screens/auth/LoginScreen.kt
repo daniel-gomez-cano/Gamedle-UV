@@ -103,7 +103,7 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
 
     // Inputs
     Text(
-     text = "Usuario",
+     text = "E-mail",
      style = MaterialTheme.typography.titleSmall,
      color = MaterialTheme.colorScheme.onBackground
     )
@@ -176,12 +176,12 @@ fun LoginScreen( modifier: Modifier = Modifier,viewModel: AuthViewModel, onLogin
      verticalAlignment = Alignment.CenterVertically
     ) {
      Text(
-      text = "¿No tiene una cuenta? ",
+      text = "¿No tienes cuenta? ",
       color = MaterialTheme.colorScheme.onBackground
      )
 
      Text(
-      text = "Registrese",
+      text = "Regístrate",
       color = MaterialTheme.colorScheme.secondary,
       modifier = Modifier.clickable {
        // Aqui va la ventana a la que dirige

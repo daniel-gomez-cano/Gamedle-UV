@@ -28,16 +28,16 @@ fun AppPasswordField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-
         placeholder = {
             Text(
                 text = placeholder,
                 color = Color(0xFF3E3E3E)
             )
         },
+        visualTransformation = visualTransformation,
 
         textStyle = MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.secondary
         ),
 
         colors = TextFieldDefaults.colors(
@@ -72,10 +72,11 @@ fun PreviewAppPasswordField() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            AppTextField(
+            AppPasswordField(
                 value = "",
                 onValueChange = {},
-                placeholder = "Escribe aquí..."
+                placeholder = "Escribe aquí...",
+                visualTransformation = PasswordVisualTransformation()
             )
         }
     }

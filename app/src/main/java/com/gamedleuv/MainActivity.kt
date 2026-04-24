@@ -41,9 +41,7 @@ class MainActivity : ComponentActivity() {
                     LoginScreen(
                         viewModel = authViewModel,
                         modifier = Modifier.padding(innerPadding),
-                        onLoginSuccess = {
-                            // Navegar a la siguiente pantalla
-                        }
+                        onLoginSuccess = {}
                     )
 
                 }
