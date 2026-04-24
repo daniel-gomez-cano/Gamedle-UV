@@ -17,9 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.theme.GamedleUVTheme
 import com.gamedleuv.ui.components.MenuCard
+import com.gamedleuv.ui.navigation.Routes
 
 
 @Composable
@@ -28,7 +30,8 @@ fun HomeScreen(
     avatar: Int,
     streak: Int,
     onSoloClick: () -> Unit,
-    onMultiClick: () -> Unit
+    onMultiClick: () -> Unit,
+    navController: NavController
 ) {
 
     Box(
@@ -49,6 +52,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
+
             ) {
 
                 Image(
@@ -57,6 +61,9 @@ fun HomeScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(50))
+                        .clickable(onClick = {
+                            navController.navigate(Routes.PROFILE)
+                        },)
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -120,21 +127,5 @@ fun HomeScreen(
                 fontSize = 12.sp
             )
         }
-    }
-}
-
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun PreviewHomeScreen() {
-    GamedleUVTheme(darkTheme = true) {
-        HomeScreen(
-            username = "kiklo187",
-            avatar = R.drawable.profile,
-            streak = 94,
-            onSoloClick = {},
-            onMultiClick = {}
-        )
     }
 }

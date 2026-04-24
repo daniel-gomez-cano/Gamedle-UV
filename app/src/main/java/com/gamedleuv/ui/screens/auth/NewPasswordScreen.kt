@@ -21,11 +21,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun NewPasswordScreen() {
+fun NewPasswordScreen(navController: NavController) {
 
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -131,6 +133,7 @@ fun NewPasswordScreen() {
                 AppButton(
                     text = "Guardar",
                     onClick = {
+                        navController.navigate(Routes.LOGIN)
                         // lógica para guardar la nueva contraseña de un ususario existente
                     },
                     modifier = Modifier
@@ -161,16 +164,5 @@ fun NewPasswordScreen() {
                 }
             }
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewNewPasswordScreen() {
-    GamedleUVTheme {
-        NewPasswordScreen()
     }
 }
