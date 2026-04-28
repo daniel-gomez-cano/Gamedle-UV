@@ -1,23 +1,23 @@
 package com.gamedleuv.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val registerUser: RegisterUserUseCase,
-    private val loginUser: LoginUserUseCase
-) : ViewModel() {
+    private val loginUser: LoginUserUseCase,
+    private val scope: CoroutineScope  //Fix Copilot: scope inyectado externamente
+) {
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
+        scope.launch {
             _uiState.value = AuthUiState.Loading
             val result = loginUser(email, password)
             _uiState.value = if (result.isSuccess) {
@@ -27,8 +27,9 @@ class AuthViewModel(
             }
         }
     }
+
     fun register(email: String, password: String, username: String) {
-        viewModelScope.launch {
+        scope.launch {
             _uiState.value = AuthUiState.Loading
             val result = registerUser(email, password, username)
             _uiState.value = if (result.isSuccess) {
@@ -42,7 +43,6 @@ class AuthViewModel(
     fun resetState() {
         _uiState.value = AuthUiState.Idle
     }
-
 }
 
 sealed class AuthUiState {

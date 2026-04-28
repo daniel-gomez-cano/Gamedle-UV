@@ -3,7 +3,6 @@ package com.gamedleuv.data.repository
 import com.gamedleuv.domain.model.User
 import com.gamedleuv.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -12,12 +11,13 @@ class AuthRepositoryImpl(
     private val firestore: FirebaseFirestore
 ) : AuthRepository {
 
-    private fun FirebaseUser.toDomain(): User {
-        return User(
-            id = uid,
-            email = email,
-            username = displayName 
-        )
+    // Se eliminó toDomain() de FirebaseUser porque username no está en Auth,
+    // sino en Firestore — requiere una llamada async para obtenerlo correctamente.
+
+    private suspend fun fetchUserFromFirestore(uid: String, email: String?): User {
+        val doc = firestore.collection("users").document(uid).get().await()
+        val username = doc.getString("username")
+        return User(id = uid, email = email, username = username)
     }
 
     override suspend fun register(email: String, password: String, username: String): Result<User?> {
@@ -38,11 +38,15 @@ class AuthRepositoryImpl(
                     firestore.collection("users").document(firebaseUser.uid).set(userData).await()
                     Result.success(User(id = firebaseUser.uid, email = email, username = username))
                 } catch (firestoreException: Exception) {
-                    firebaseUser.delete().await()
-                    return Result.failure(firestoreException)
+                    try {
+                        firebaseUser.delete().await()
+                    } catch (deleteException: Exception) {
+                        firestoreException.addSuppressed(deleteException)
+                    }
+                    Result.failure(firestoreException)
                 }
             } else {
-                Result.success(null)
+                Result.failure(IllegalStateException("User registration completed without creating a Firebase user"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -52,14 +56,22 @@ class AuthRepositoryImpl(
     override suspend fun login(email: String, password: String): Result<User?> {
         return try {
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            Result.success(result.user?.toDomain())
+            val firebaseUser = result.user
+
+
+            val user = if (firebaseUser != null) {
+                fetchUserFromFirestore(firebaseUser.uid, firebaseUser.email)
+            } else null
+
+            Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
     override fun getCurrentUser(): User? {
-        return firebaseAuth.currentUser?.toDomain()
+        val firebaseUser = firebaseAuth.currentUser ?: return null
+        return User(id = firebaseUser.uid, email = firebaseUser.email, username = null)
     }
 
     override fun logout() {

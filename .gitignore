@@ -62,6 +62,8 @@ Desktop.ini
 # Firebase configuration (sensitive data)
 google-services.json
 */google-services.json
+# Firebase
+app/google-services.json
 
 # Ignore NDK build artifacts
 obj/

@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import com.gamedleuv.ui.screens.auth.GetCodeScreen
 import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
@@ -42,8 +43,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() { //App navigation nos maneja la conexion entre ventanas
+fun AppNavigation() {
     val navController = rememberNavController()
+
     val repo = remember {
         AuthRepositoryImpl(
             firebaseAuth = FirebaseAuth.getInstance(),
@@ -52,11 +54,16 @@ fun AppNavigation() { //App navigation nos maneja la conexion entre ventanas
     }
     val registerUseCase = remember { RegisterUserUseCase(repo) }
     val loginUseCase = remember { LoginUserUseCase(repo) }
-    val authViewModel = remember { AuthViewModel(registerUseCase, loginUseCase) }
+
+    //Fix Copilot: scope ligado al ciclo de vida del Composable
+    val scope = rememberCoroutineScope()
+    val authViewModel = remember {
+        AuthViewModel(registerUseCase, loginUseCase, scope)
+    }
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN //declaramos como ventana inicial la de Login
+        startDestination = Routes.LOGIN
     ) {
 
         composable(Routes.LOGIN) {

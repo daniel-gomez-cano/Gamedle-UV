@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppPasswordField
@@ -58,7 +57,6 @@ fun RegisterScreen(
         }
     }
 
-
     Box(
         modifier = modifier
             .fillMaxSize(),
@@ -90,8 +88,6 @@ fun RegisterScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-
                     Icon(
                         painter = painterResource(id = R.drawable.virus),
                         contentDescription = "Logo",
@@ -104,13 +100,12 @@ fun RegisterScreen(
                         text = "GAMEDLE",
                         style = MaterialTheme.typography.displayLarge.copy(
                             shadow = Shadow(
-                                color = Color(0xFFB298DC), // color de la sombra
-                                offset = Offset(5f, 5f),   // posición X, Y
-                                blurRadius = 4f            // difuminado
+                                color = Color(0xFFB298DC),
+                                offset = Offset(5f, 5f),
+                                blurRadius = 4f
                             )
                         ),
                         color = MaterialTheme.colorScheme.onBackground
-
                     )
                 }
 
@@ -133,8 +128,7 @@ fun RegisterScreen(
                 AppTextField(
                     value = username,
                     onValueChange = { username = it },
-                    placeholder = "Ingresar usuario",
-
+                    placeholder = "Ingresar usuario"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -157,11 +151,11 @@ fun RegisterScreen(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                // visualTransformation removido — PasswordVisualTransformation() es el default
                 AppPasswordField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = "Ingresar contraseña",
-                    visualTransformation = PasswordVisualTransformation()
+                    placeholder = "Ingresar contraseña"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -171,7 +165,8 @@ fun RegisterScreen(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                AppTextField(
+
+                AppPasswordField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     placeholder = "Confirmar contraseña"
@@ -179,7 +174,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Boton componente
                 AppButton(
                     text = "Continuar",
                     onClick = {
@@ -194,10 +188,12 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .height(70.dp)
                 )
+
                 if (validationError != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(validationError.orEmpty(), color = Color.Red)
                 }
+
                 when (uiState) {
                     is AuthUiState.Idle -> {}
                     is AuthUiState.Loading -> CircularProgressIndicator()
@@ -205,11 +201,9 @@ fun RegisterScreen(
                     is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
                 }
 
-
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Fotter
+                // Footer
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -218,7 +212,6 @@ fun RegisterScreen(
                         text = "¿Ya tiene cuenta? ",
                         color = MaterialTheme.colorScheme.onBackground
                     )
-
                     Text(
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
@@ -235,7 +228,6 @@ fun RegisterScreen(
             }
         }
     }
-
 }
 
 @Preview(
@@ -248,5 +240,3 @@ fun PreviewRegisterScreen() {
         RegisterScreen()
     }
 }
-
-
