@@ -17,3 +17,13 @@ Este proyecto fue desarrollado en la Universidad del Valle, Ingeniería de Siste
 
 **Docente:** Miguel Askar Rodriguez.  
 **Año:** 2026
+
+## 3. Configuración del Proyecto
+
+### Firebase
+Para proteger las llaves de API y la configuración sensible, el archivo `app/google-services.json` está excluido del control de versiones.
+
+Para configurar Firebase en tu entorno local:
+1. Descarga tu propio archivo `google-services.json` desde la consola de Firebase.
+2. Colócalo en la carpeta `app/`.
+3. Si no tienes uno, puedes guiarte por el archivo `app/google-services.json.example` para ver la estructura necesaria.

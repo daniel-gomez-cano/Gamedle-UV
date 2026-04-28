@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
@@ -23,20 +24,41 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.gamedleuv.R
+import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.viewmodel.AuthUiState
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun RegisterScreen(navController: NavController) {
+fun RegisterScreen(
+    navController: NavController? = null,
+    modifier: Modifier = Modifier,
+    viewModel: AuthViewModel? = null
+) {
+
+    val uiState by (viewModel?.uiState?.collectAsState() ?: remember { mutableStateOf(AuthUiState.Idle) })
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var validationError by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(uiState) {
+        if (uiState is AuthUiState.Success) {
+            navController?.navigate(Routes.LOGIN) {
+                popUpTo(Routes.REGISTER) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+            viewModel?.resetState()
+        }
+    }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
@@ -66,8 +88,6 @@ fun RegisterScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-
                     Icon(
                         painter = painterResource(id = R.drawable.virus),
                         contentDescription = "Logo",
@@ -80,13 +100,12 @@ fun RegisterScreen(navController: NavController) {
                         text = "GAMEDLE",
                         style = MaterialTheme.typography.displayLarge.copy(
                             shadow = Shadow(
-                                color = Color(0xFFB298DC), // color de la sombra
-                                offset = Offset(5f, 5f),   // posición X, Y
-                                blurRadius = 4f            // difuminado
+                                color = Color(0xFFB298DC),
+                                offset = Offset(5f, 5f),
+                                blurRadius = 4f
                             )
                         ),
                         color = MaterialTheme.colorScheme.onBackground
-
                     )
                 }
 
@@ -109,8 +128,7 @@ fun RegisterScreen(navController: NavController) {
                 AppTextField(
                     value = username,
                     onValueChange = { username = it },
-                    placeholder = "Ingresar usuario",
-
+                    placeholder = "Ingresar usuario"
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -133,7 +151,8 @@ fun RegisterScreen(navController: NavController) {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                AppTextField(
+                // visualTransformation removido — PasswordVisualTransformation() es el default
+                AppPasswordField(
                     value = password,
                     onValueChange = { password = it },
                     placeholder = "Ingresar contraseña"
@@ -146,7 +165,8 @@ fun RegisterScreen(navController: NavController) {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                AppTextField(
+
+                AppPasswordField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     placeholder = "Confirmar contraseña"
@@ -154,21 +174,36 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Boton componente
                 AppButton(
                     text = "Continuar",
                     onClick = {
-                        navController.navigate(Routes.HOME)
-                        // lógica registro
+                        if (password == confirmPassword) {
+                            validationError = null
+                            viewModel?.register(email, password, username)
+                        } else {
+                            validationError = "Las contraseñas no coinciden"
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                 )
 
+                if (validationError != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(validationError.orEmpty(), color = Color.Red)
+                }
+
+                when (uiState) {
+                    is AuthUiState.Idle -> {}
+                    is AuthUiState.Loading -> CircularProgressIndicator()
+                    is AuthUiState.Success -> Text((uiState as AuthUiState.Success).msg)
+                    is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Fotter
+                // Footer
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -177,17 +212,31 @@ fun RegisterScreen(navController: NavController) {
                         text = "¿Ya tiene cuenta? ",
                         color = MaterialTheme.colorScheme.onBackground
                     )
-
                     Text(
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
-                            navController.navigate(Routes.LOGIN)
+                            navController?.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.REGISTER) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
             }
         }
     }
+}
 
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewRegisterScreen() {
+    GamedleUVTheme {
+        RegisterScreen()
+    }
 }
