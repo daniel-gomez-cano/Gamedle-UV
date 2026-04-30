@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
@@ -21,19 +22,40 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import com.gamedleuv.R
+import com.gamedleuv.ui.components.AppPasswordField
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.viewmodel.AuthUiState
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.navigation.Routes
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+ navController: NavController? = null,
+ modifier: Modifier = Modifier,
+ viewModel: AuthViewModel? = null
+) {
+ val uiState by (viewModel?.uiState?.collectAsState() ?: remember { mutableStateOf(AuthUiState.Idle) })
 
- var username by remember { mutableStateOf("") }
+ var email by remember { mutableStateOf("") }
  var password by remember { mutableStateOf("") }
 
+ LaunchedEffect(uiState) {
+  if (uiState is AuthUiState.Success) {
+   navController?.navigate(Routes.HOME) {
+    popUpTo(Routes.LOGIN) {
+     inclusive = true
+    }
+    launchSingleTop = true
+   }
+   viewModel?.resetState()
+  }
+ }
+
  Box(
-  modifier = Modifier
+      modifier = modifier
    .fillMaxSize(),
   contentAlignment = Alignment.Center
  ) {
@@ -99,14 +121,14 @@ fun LoginScreen(navController: NavController) {
 
     // Inputs
     Text(
-     text = "Usuario",
+     text = "E-mail",
      style = MaterialTheme.typography.titleSmall,
      color = MaterialTheme.colorScheme.onBackground
     )
     AppTextField(
-     value = username,
-     onValueChange = { username = it },
-     placeholder = "Ingresar usuario",
+     value = email,
+     onValueChange = { email = it },
+     placeholder = "Ingrese su correo",
 
      )
 
@@ -117,10 +139,11 @@ fun LoginScreen(navController: NavController) {
      style = MaterialTheme.typography.titleSmall,
      color = MaterialTheme.colorScheme.onBackground
     )
-    AppTextField(
+    AppPasswordField(
      value = password,
      onValueChange = { password = it },
-     placeholder = "Ingresar contraseña"
+     placeholder = "Ingrese su contraseña",
+     visualTransformation = PasswordVisualTransformation()
     )
 
     Spacer(modifier = Modifier.height(36.dp))
@@ -130,13 +153,21 @@ fun LoginScreen(navController: NavController) {
     AppButton(
      text = "Continuar",
      onClick = {
-      navController.navigate(Routes.HOME)
-      // lógica login
+      viewModel?.login(email, password)
      },
      modifier = Modifier
       .fillMaxWidth()
       .height(70.dp)
     )
+
+    when (uiState) {
+     is AuthUiState.Idle -> {}
+     is AuthUiState.Loading -> CircularProgressIndicator()
+     is AuthUiState.Success -> {
+      Text((uiState as AuthUiState.Success).msg)
+     }
+     is AuthUiState.Error -> Text((uiState as AuthUiState.Error).error, color = Color.Red)
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -147,8 +178,7 @@ fun LoginScreen(navController: NavController) {
      style = MaterialTheme.typography.titleSmall,
      text = "¿Olvidó su contraseña?",
      onClick = {
-      navController.navigate(Routes.RECOVER)
-      // lógica del recuperar su contraseña
+      navController?.navigate(Routes.RECOVER)
      },
      modifier = Modifier
       .fillMaxWidth()
@@ -163,15 +193,15 @@ fun LoginScreen(navController: NavController) {
      verticalAlignment = Alignment.CenterVertically
     ) {
      Text(
-      text = "¿No tiene una cuenta? ",
+      text = "¿No tienes cuenta? ",
       color = MaterialTheme.colorScheme.onBackground
      )
 
      Text(
-      text = "Registrese",
+      text = "Regístrate",
       color = MaterialTheme.colorScheme.secondary,
       modifier = Modifier.clickable {
-       navController.navigate(Routes.REGISTER)
+       navController?.navigate(Routes.REGISTER)
       }
      )
     }
@@ -179,3 +209,15 @@ fun LoginScreen(navController: NavController) {
   }
  }
 }
+
+@Preview(
+ showBackground = true,
+ uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewLoginScreen() {
+ GamedleUVTheme {
+  LoginScreen()
+ }
+}
+
