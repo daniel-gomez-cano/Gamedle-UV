@@ -39,7 +39,8 @@ class AuthViewModel(
             _uiState.value = AuthUiState.Loading
             val result = registerUser(email, password, username)
             _uiState.value = if (result.isSuccess) {
-                _currentUser.value = User(username, email)
+                val user = result.getOrNull()
+                _currentUser.value = user
                 AuthUiState.Success("Usuario registrado piola")
             } else {
                 AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")

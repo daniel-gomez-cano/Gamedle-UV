@@ -30,8 +30,6 @@ import com.gamedleuv.ui.viewmodel.AuthViewModel
 
 @Composable
 fun HomeScreen(
-    username: String,
-    avatar: Int,
     streak: Int,
     onSoloClick: () -> Unit,
     onMultiClick: () -> Unit,
@@ -75,7 +73,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = username,
+                    text = user?.username ?: "Cargando...",
                     color = Color.White,
                     style = MaterialTheme.typography.labelMedium
                 )

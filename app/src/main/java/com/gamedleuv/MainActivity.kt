@@ -60,8 +60,6 @@ fun AppNavigation() {
     val registerUseCase = remember { RegisterUserUseCase(repo) }
     val loginUseCase = remember { LoginUserUseCase(repo) }
 
-    //Fix Copilot: scope ligado al ciclo de vida del Composable
-    val scope = rememberCoroutineScope()
     val authViewModel = remember {
         AuthViewModel(registerUseCase, loginUseCase, CoroutineScope(Dispatchers.Main))
     }
@@ -88,8 +86,6 @@ fun AppNavigation() {
 
         composable(Routes.HOME){ // En casos donde la pantalla requiere de datos para funcionar, se deben asignar todos ellos (este es de prueba, luego toca poner que capture los datos del usuario de la bd)
             HomeScreen(
-                username = user?.username ?: "Cargando...",
-                avatar = R.drawable.profile,
                 streak = user?.currentStreak ?: 0,
                 onSoloClick = {},
                 onMultiClick = {},
