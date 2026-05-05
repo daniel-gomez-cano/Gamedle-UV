@@ -1,5 +1,6 @@
 package com.gamedleuv.ui.viewmodel
 
+import com.gamedleuv.domain.model.User
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -16,11 +17,16 @@ class AuthViewModel(
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState
 
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser
+
     fun login(email: String, password: String) {
         scope.launch {
             _uiState.value = AuthUiState.Loading
             val result = loginUser(email, password)
             _uiState.value = if (result.isSuccess) {
+                val user = result.getOrNull()
+                _currentUser.value = user
                 AuthUiState.Success("Sesión iniciada :D")
             } else {
                 AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")
@@ -33,6 +39,8 @@ class AuthViewModel(
             _uiState.value = AuthUiState.Loading
             val result = registerUser(email, password, username)
             _uiState.value = if (result.isSuccess) {
+                val user = result.getOrNull()
+                _currentUser.value = user
                 AuthUiState.Success("Usuario registrado piola")
             } else {
                 AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")

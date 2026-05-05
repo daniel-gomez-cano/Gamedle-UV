@@ -11,6 +11,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +31,11 @@ import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.screens.auth.LoginScreen
 import com.gamedleuv.ui.theme.GamedleUVTheme
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, viewModel: AuthViewModel) {
+    val user by viewModel.currentUser.collectAsState()
 
     Box(
         modifier = Modifier
@@ -90,7 +94,7 @@ fun ProfileScreen(navController: NavController) {
             //Foto de perfil
             //Esto es PROVISIONAL, tendrá que cambiar bastante con la lógica de recuperar la imagen subida por el user
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = R.drawable.profile),
                 contentDescription = "Foto de perfil",
                 modifier = Modifier
                     .size(160.dp)
@@ -102,7 +106,7 @@ fun ProfileScreen(navController: NavController) {
             //Username
             //Aquí también deberá cambiar por la lógica de obtener el username del usuario
             Text(
-                text = "userName",
+                text = user?.username ?: "Cargando...",
                 style = MaterialTheme.typography.displayMedium.copy(
                     fontSize = 24.sp
                 ),

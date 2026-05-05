@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.gamedleuv.data.repository.AuthRepositoryImpl
@@ -29,6 +31,9 @@ import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
+import com.gamedleuv.domain.model.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,11 +60,10 @@ fun AppNavigation() {
     val registerUseCase = remember { RegisterUserUseCase(repo) }
     val loginUseCase = remember { LoginUserUseCase(repo) }
 
-    //Fix Copilot: scope ligado al ciclo de vida del Composable
-    val scope = rememberCoroutineScope()
     val authViewModel = remember {
-        AuthViewModel(registerUseCase, loginUseCase, scope)
+        AuthViewModel(registerUseCase, loginUseCase, CoroutineScope(Dispatchers.Main))
     }
+    val user by authViewModel.currentUser.collectAsState()
 
     NavHost(
         navController = navController,
@@ -82,17 +86,16 @@ fun AppNavigation() {
 
         composable(Routes.HOME){ // En casos donde la pantalla requiere de datos para funcionar, se deben asignar todos ellos (este es de prueba, luego toca poner que capture los datos del usuario de la bd)
             HomeScreen(
-                username = "EjemplitoLindo",
-                avatar = R.drawable.profile,
-                streak = 5,
+                streak = user?.currentStreak ?: 0,
                 onSoloClick = {},
                 onMultiClick = {},
-                navController
+                navController,
+                authViewModel
             )
         }
 
-        composable(Routes.PROFILE){
-            ProfileScreen(navController)
+        composable(Routes.PROFILE) {
+            ProfileScreen(navController, authViewModel)
         }
 
         composable(Routes.RECOVER){
