@@ -32,6 +32,9 @@ import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
 import com.gamedleuv.domain.model.User
+import com.gamedleuv.ui.components.MenuCard
+import com.gamedleuv.ui.screens.game.SoloGameScreen
+import com.gamedleuv.ui.viewmodel.GameViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -63,6 +66,11 @@ fun AppNavigation() {
     val authViewModel = remember {
         AuthViewModel(registerUseCase, loginUseCase, CoroutineScope(Dispatchers.Main))
     }
+
+    val gameViewModel = remember {
+        GameViewModel(CoroutineScope(Dispatchers.Main))
+    }
+
     val user by authViewModel.currentUser.collectAsState()
 
     NavHost(
@@ -87,10 +95,17 @@ fun AppNavigation() {
         composable(Routes.HOME){ // En casos donde la pantalla requiere de datos para funcionar, se deben asignar todos ellos (este es de prueba, luego toca poner que capture los datos del usuario de la bd)
             HomeScreen(
                 streak = user?.currentStreak ?: 0,
-                onSoloClick = {},
+                onSoloClick = { navController.navigate(Routes.SOLO_GAME) },
                 onMultiClick = {},
                 navController,
                 authViewModel
+            )
+        }
+
+        composable(Routes.SOLO_GAME) {
+            SoloGameScreen(
+                authViewModel = authViewModel,
+                gameViewModel = gameViewModel
             )
         }
 
