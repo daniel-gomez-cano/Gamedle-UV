@@ -17,8 +17,10 @@ import androidx.compose.ui.Modifier
 fun DropdownField(
     options: List<String>,
     selected: String,
+    query: String,
     onSelectedChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -26,7 +28,10 @@ fun DropdownField(
 
         AppTextField(
             value = selected,
-            onValueChange = {},
+            onValueChange = { query ->
+                onValueChange(query)
+                expanded = true
+            },
             placeholder = "Seleccionar",
             modifier = Modifier
                 .fillMaxWidth()

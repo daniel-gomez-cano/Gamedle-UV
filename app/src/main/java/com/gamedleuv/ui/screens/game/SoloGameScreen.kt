@@ -1,6 +1,5 @@
 package com.gamedleuv.ui.screens.game
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.gamedleuv.R
 import com.gamedleuv.domain.model.User
 import com.gamedleuv.ui.components.AppButton
@@ -40,14 +40,16 @@ fun SoloGameScreen(
 
     SoloGameContent(
         user = user,
-        gameImage = gameState.gameImage,
+        gameImageUrl = gameState.gameImageUrl,
         lives = gameState.lives,
         maxLives = gameState.maxLives,
         gameList = gameState.gameList,
         selectedGame = gameState.selectedGame,
+        searchQuery = gameState.searchQuery,
         isLoading = gameState.isLoading,
         onGameSelected = gameViewModel::onGameSelected,
         onSkip = gameViewModel::onSkip,
+        onSearchQueryChange = gameViewModel::searchGames,
         onGuess = gameViewModel::onGuess
     )
 }
@@ -55,15 +57,17 @@ fun SoloGameScreen(
 @Composable
 private fun SoloGameContent(
     user: User?,
-    gameImage: Int,
     lives: Int,
     maxLives: Int,
     gameList: List<String>,
     selectedGame: String,
+    searchQuery: String,
     isLoading: Boolean,
     onGameSelected: (String) -> Unit,
     onSkip: () -> Unit,
-    onGuess: () -> Unit
+    onGuess: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    gameImageUrl: String?
 ) {
     Box(
         modifier = Modifier
@@ -143,8 +147,8 @@ private fun SoloGameContent(
 
                 // IMAGEN DEL JUEGO
                 // TODO: Aplicar blur cuando la API esté implementada
-                Image(
-                    painter = painterResource(id = gameImage),
+                AsyncImage(
+                    model = gameImageUrl,
                     contentDescription = "game image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -203,7 +207,13 @@ private fun SoloGameContent(
                     DropdownField(
                         options = gameList,
                         selected = selectedGame,
-                        onSelectedChange = onGameSelected,
+                        query = searchQuery,
+                        onSelectedChange = {
+                            onGameSelected(it)
+                        },
+                        onValueChange = { query ->
+                            onSearchQueryChange(query)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     ProfileButton(
@@ -231,7 +241,7 @@ fun PreviewSoloGameScreen() {
                 username = "Kano065",
                 currentStreak = 96
             ),
-            gameImage = R.drawable.ic_launcher_background,
+            gameImageUrl = "https://images.igdb.com/igdb/image/upload/t_cover_big/co1xyz.jpg",
             lives = 2,
             maxLives = 5,
             gameList = listOf("Elden Ring", "Hades", "Celeste"),
@@ -239,7 +249,9 @@ fun PreviewSoloGameScreen() {
             isLoading = false,
             onGameSelected = {},
             onSkip = {},
-            onGuess = {}
+            onGuess = {},
+            onSearchQueryChange = {},
+            searchQuery = TODO()
         )
     }
 }

@@ -26,17 +26,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.gamedleuv.data.remote.api.IgdbApiService
+import com.gamedleuv.data.remote.api.RetrofitInstance
+import com.gamedleuv.data.repository.GameRepositoryImpl
 import com.gamedleuv.ui.screens.auth.GetCodeScreen
 import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
 import com.gamedleuv.domain.model.User
+import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
 import com.gamedleuv.ui.components.MenuCard
 import com.gamedleuv.ui.screens.game.SoloGameScreen
 import com.gamedleuv.ui.viewmodel.GameViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +72,21 @@ fun AppNavigation() {
         AuthViewModel(registerUseCase, loginUseCase, CoroutineScope(Dispatchers.Main))
     }
 
+    val gameApi = remember { RetrofitInstance.api }
+
+    val gameRepository = remember {
+        GameRepositoryImpl(gameApi)
+    }
+
+    val searchGamesUseCase = remember {
+        SearchGamesUseCase(gameRepository)
+    }
+
     val gameViewModel = remember {
-        GameViewModel(CoroutineScope(Dispatchers.Main))
+        GameViewModel(
+            searchGamesUseCase,
+            CoroutineScope(Dispatchers.Main)
+        )
     }
 
     val user by authViewModel.currentUser.collectAsState()

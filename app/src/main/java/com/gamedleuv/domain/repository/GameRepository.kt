@@ -1,3 +1,7 @@
 package com.gamedleuv.domain.repository
 
-class GameRepository 
+import com.gamedleuv.domain.model.Game
+
+interface GameRepository {
+    suspend fun searchGames(query: String): List<Game>
+}
