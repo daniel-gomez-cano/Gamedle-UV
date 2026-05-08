@@ -1,10 +1,13 @@
 package com.gamedleuv.ui.viewmodel
 
 import android.util.Log
-import com.gamedleuv.R
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gamedleuv.domain.model.Game
+import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
 import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,8 +24,8 @@ data class GameUiState(
 
 class GameViewModel(
     private val searchGamesUseCase: SearchGamesUseCase,
-    private val scope: CoroutineScope
-) {
+    private val getRandomGameUseCase: GetRandomGameUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState
 
@@ -32,46 +35,43 @@ class GameViewModel(
         loadRandomGame()
     }
 
+    private var searchJob: Job? = null
     fun searchGames(query: String) {
         // 1. Actualiza el estado con lo que el usuario escribe
-        _uiState.value = _uiState.value.copy(
-            searchQuery = query
-        )
+        _uiState.value = _uiState.value.copy(searchQuery = query)
         // 2. Si lo que el mansito escribe es muy corto, limpiamos la lista y salimos
         if (query.length < 2) {
-            _uiState.value = _uiState.value.copy(
-                searchQuery = query,
-                gameList = emptyList()
-            )
+            _uiState.value = _uiState.value.copy(gameList = emptyList())
             return
         }
+
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(400)
         // 3. Si pasa la validación, procede con la búsqueda
-        scope.launch {
             try {
                 val result = searchGamesUseCase(query)
-
                 _uiState.value = _uiState.value.copy(
-                    searchQuery = query,
-                    gameList = result.map { it.name }
+                    gameList = result.map { it.name }.distinct()
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
-
-    private val gamePool = listOf(
-        "mario", "zelda", "halo", "fifa", "call of duty",
-        "god of war", "minecraft", "pokemon", "resident evil",
-        "final fantasy", "gta", "dark souls", "fortnite"
-    )
     private fun loadRandomGame() {
-        scope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                gameImageUrl = currentGame?.imageUrl,
+                isLoading = false,
+                searchQuery = "",       // ← limpia el input
+                selectedGame = "",      // ← limpia la selección
+                gameList = emptyList()
+            )
             try {
-                val randomQuery = gamePool.random()
-                val result = searchGamesUseCase(randomQuery)
-                currentGame = result.filter { !it.imageUrl.isNullOrEmpty() }.randomOrNull()
+                currentGame = getRandomGameUseCase()
+                Log.d("GAME_DEBUG", "Game seleccionado: ${currentGame?.name}")
+                Log.d("GAME_DEBUG", "URL imagen: ${currentGame?.imageUrl}")
                 _uiState.value = _uiState.value.copy(
                     gameImageUrl = currentGame?.imageUrl,
                     isLoading = false
@@ -91,17 +91,14 @@ class GameViewModel(
 
     fun onGuess() {
         val isCorrect = _uiState.value.selectedGame.equals(
-            currentGame?.name,
-            ignoreCase = true
+            currentGame?.name, ignoreCase = true
         )
-
         if (isCorrect) {
             loadRandomGame()
         } else {
             loseLife()
         }
     }
-
     fun onSkip() {
         //TODO: Implementar la logica del blur para el juego
         loseLife()
@@ -117,5 +114,12 @@ class GameViewModel(
     fun resetGame() {
         _uiState.value = GameUiState()
         loadRandomGame()
+    }
+    companion object {
+        private val gamePool = listOf(
+            "mario", "zelda", "halo", "fifa", "call of duty",
+            "god of war", "minecraft", "pokemon", "resident evil",
+            "final fantasy", "gta", "dark souls", "fortnite"
+        )
     }
 }

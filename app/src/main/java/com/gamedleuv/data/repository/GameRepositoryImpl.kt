@@ -32,4 +32,29 @@ class GameRepositoryImpl(
                 )
             }
     }
+
+    override suspend fun getRandomGame(): Game? {
+        val offset = (0..5000).random()
+        val bodyString = """
+        fields name, cover.url;
+        where cover != null & rating_count > 30;
+        limit 1;
+        offset $offset;
+    """.trimIndent()
+
+        val body = bodyString.toRequestBody("text/plain".toMediaType())
+
+        return api.searchGames(body = body)
+            .mapNotNull {
+                val name = it.name ?: return@mapNotNull null
+                Game(
+                    id = it.id,
+                    name = it.name,
+                    imageUrl = it.cover?.url?.let { url ->
+                        "https:$url".replace("t_thumb", "t_cover_big")
+                    }
+                )
+            }
+            .firstOrNull()
+    }
 }

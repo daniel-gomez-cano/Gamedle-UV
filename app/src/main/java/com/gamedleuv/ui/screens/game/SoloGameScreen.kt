@@ -216,6 +216,7 @@ private fun SoloGameContent(
                         },
                         modifier = Modifier.weight(1f)
                     )
+                    // Botón de enviar respuesta
                     ProfileButton(
                         img = R.drawable.arrow,
                         transparent = true,
@@ -251,7 +252,7 @@ fun PreviewSoloGameScreen() {
             onSkip = {},
             onGuess = {},
             onSearchQueryChange = {},
-            searchQuery = TODO()
+            searchQuery = ""
         )
     }
 }

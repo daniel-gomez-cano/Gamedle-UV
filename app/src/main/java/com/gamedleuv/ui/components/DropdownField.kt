@@ -2,16 +2,20 @@ package com.gamedleuv.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DropdownField(
@@ -22,34 +26,39 @@ fun DropdownField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(modifier = modifier) {
+        Column {
+            AppTextField(
+                value = query,
+                onValueChange = { onValueChange(it) },
+                placeholder = "Seleccionar",
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        AppTextField(
-            value = selected,
-            onValueChange = { query ->
-                onValueChange(query)
-                expanded = true
-            },
-            placeholder = "Seleccionar",
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onSelectedChange(option)
-                        expanded = false
+            if (options.isNotEmpty() && query.length >= 2) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    tonalElevation = 4.dp,
+                    shadowElevation = 4.dp
+                ) {
+                    LazyColumn {
+                        items(options) { option ->
+                            Text(
+                                text = option,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onSelectedChange(option) }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            HorizontalDivider(thickness = 0.5.dp)
+                        }
                     }
-                )
+                }
             }
         }
     }

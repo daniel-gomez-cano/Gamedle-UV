@@ -4,13 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.gamedleuv.data.repository.AuthRepositoryImpl
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
@@ -25,24 +21,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import com.gamedleuv.data.remote.api.IgdbApiService
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gamedleuv.data.remote.api.RetrofitInstance
 import com.gamedleuv.data.repository.GameRepositoryImpl
+import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
 import com.gamedleuv.ui.screens.auth.GetCodeScreen
 import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
-import com.gamedleuv.domain.model.User
 import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
-import com.gamedleuv.ui.components.MenuCard
 import com.gamedleuv.ui.screens.game.SoloGameScreen
 import com.gamedleuv.ui.viewmodel.GameViewModel
+import com.gamedleuv.ui.viewmodel.GameViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import retrofit2.Retrofit
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +47,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -82,12 +74,12 @@ fun AppNavigation() {
         SearchGamesUseCase(gameRepository)
     }
 
-    val gameViewModel = remember {
-        GameViewModel(
-            searchGamesUseCase,
-            CoroutineScope(Dispatchers.Main)
+    val gameViewModel: GameViewModel = viewModel(
+        factory = GameViewModelFactory(
+            searchGamesUseCase = searchGamesUseCase,
+            getRandomGameUseCase = GetRandomGameUseCase(gameRepository)
         )
-    }
+    )
 
     val user by authViewModel.currentUser.collectAsState()
 
