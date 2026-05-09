@@ -115,11 +115,4 @@ class GameViewModel(
         _uiState.value = GameUiState()
         loadRandomGame()
     }
-    companion object {
-        private val gamePool = listOf(
-            "mario", "zelda", "halo", "fifa", "call of duty",
-            "god of war", "minecraft", "pokemon", "resident evil",
-            "final fantasy", "gta", "dark souls", "fortnite"
-        )
-    }
 }
