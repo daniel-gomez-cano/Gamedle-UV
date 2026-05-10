@@ -41,6 +41,16 @@ android {
 }
 
 dependencies {
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Retrofit with Scalar Converter
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    // Lifecycle ViewMOdel para Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
     implementation(libs.androidx.core.ktx)
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.navigation:navigation-compose:2.9.8")
