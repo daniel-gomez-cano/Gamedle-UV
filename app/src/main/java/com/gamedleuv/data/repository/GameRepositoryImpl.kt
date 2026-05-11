@@ -34,7 +34,7 @@ class GameRepositoryImpl(
     }
 
     override suspend fun getRandomGame(): Game? {
-        val offset = (0..5000).random()
+        val offset = (0..3000).random() //importante, puede devolver nulos si el valor es alto
         val bodyString = """
         fields name, cover.url;
         where cover != null & rating_count > 30;
