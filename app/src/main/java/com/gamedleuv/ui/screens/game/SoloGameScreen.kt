@@ -12,14 +12,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.gamedleuv.R
 import com.gamedleuv.domain.model.User
 import com.gamedleuv.ui.components.AppButton
+import com.gamedleuv.ui.components.BlurredImage
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
 import com.gamedleuv.ui.components.ProfileButton
@@ -32,10 +31,7 @@ fun SoloGameScreen(
     authViewModel: AuthViewModel,
     gameViewModel: GameViewModel
 ) {
-    // Datos del usuario desde AuthViewModel
     val user by authViewModel.currentUser.collectAsState()
-
-    // Estado del juego desde SoloGameViewModel
     val gameState by gameViewModel.uiState.collectAsState()
 
     SoloGameContent(
@@ -47,6 +43,7 @@ fun SoloGameScreen(
         selectedGame = gameState.selectedGame,
         searchQuery = gameState.searchQuery,
         isLoading = gameState.isLoading,
+        revealedSectors = gameState.revealedSectors,
         onGameSelected = gameViewModel::onGameSelected,
         onSkip = gameViewModel::onSkip,
         onSearchQueryChange = gameViewModel::searchGames,
@@ -63,6 +60,7 @@ private fun SoloGameContent(
     selectedGame: String,
     searchQuery: String,
     isLoading: Boolean,
+    revealedSectors: List<Int>, // ← aquí sí va
     onGameSelected: (String) -> Unit,
     onSkip: () -> Unit,
     onGuess: () -> Unit,
@@ -85,7 +83,6 @@ private fun SoloGameContent(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
-
                 // HEADER
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -129,13 +126,11 @@ private fun SoloGameContent(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            // Si el user aún no cargó, muestra placeholder
                             text = user?.username ?: "Cargando...",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
-
                     HeartsRow(
                         total = maxLives,
                         filled = lives,
@@ -145,12 +140,10 @@ private fun SoloGameContent(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // IMAGEN DEL JUEGO
-                // TODO: Aplicar blur cuando la API esté implementada
-                AsyncImage(
-                    model = gameImageUrl,
-                    contentDescription = "game image",
-                    contentScale = ContentScale.Crop,
+                // IMAGEN DEL JUEGO con blur progresivo
+                BlurredImage(
+                    imageUrl = gameImageUrl,
+                    revealedSectors = revealedSectors,
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(0.6f)
@@ -177,7 +170,7 @@ private fun SoloGameContent(
                     AppButton(
                         style = MaterialTheme.typography.labelMedium,
                         text = "Pista",
-                        onClick = {},  // TODO: Implementar lógica de pista
+                        onClick = {}, // TODO: Implementar lógica de pista
                         modifier = Modifier
                             .border(4.dp, MaterialTheme.colorScheme.tertiary, RoundedCornerShape(50.dp))
                             .weight(1f)
@@ -189,7 +182,6 @@ private fun SoloGameContent(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        // La racha viene del User, con 0 como fallback
                         text = "${user?.currentStreak ?: 0}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
@@ -208,15 +200,10 @@ private fun SoloGameContent(
                         options = gameList,
                         selected = selectedGame,
                         query = searchQuery,
-                        onSelectedChange = {
-                            onGameSelected(it)
-                        },
-                        onValueChange = { query ->
-                            onSearchQueryChange(query)
-                        },
+                        onSelectedChange = { onGameSelected(it) },
+                        onValueChange = { query -> onSearchQueryChange(query) },
                         modifier = Modifier.weight(1f)
                     )
-                    // Botón de enviar respuesta
                     ProfileButton(
                         img = R.drawable.arrow,
                         transparent = true,
@@ -248,6 +235,7 @@ fun PreviewSoloGameScreen() {
             gameList = listOf("Elden Ring", "Hades", "Celeste"),
             selectedGame = "",
             isLoading = false,
+            revealedSectors = listOf(0, 1, 2), // ← preview con fila superior revelada
             onGameSelected = {},
             onSkip = {},
             onGuess = {},

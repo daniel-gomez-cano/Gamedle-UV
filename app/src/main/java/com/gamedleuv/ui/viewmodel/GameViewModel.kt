@@ -19,7 +19,8 @@ data class GameUiState(
     val gameList: List<String> = emptyList(),
     val selectedGame: String = "",
     val searchQuery: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val revealedSectors: List<Int> = emptyList()
 )
 
 class GameViewModel(
