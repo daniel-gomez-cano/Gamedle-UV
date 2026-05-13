@@ -19,7 +19,7 @@ object RetrofitInstance {
                 OkHttpClient.Builder()
                     .addInterceptor { chain ->
                         val request = chain.request().newBuilder()
-                            .addHeader("Client-ID", "Miren el grupo lol, copien y peguen entre las comillas")
+                            .addHeader("Client-ID", "")
                             .addHeader("Authorization", "Bearer kk1pzmq68b1oo4t9mwmn6rn74i0wuc")
                             .build()
                         chain.proceed(request)
