@@ -67,7 +67,8 @@ class GameViewModel(
                 isLoading = false,
                 searchQuery = "",       // ← limpia el input
                 selectedGame = "",      // ← limpia la selección
-                gameList = emptyList()
+                gameList = emptyList(),
+                revealedSectors = emptyList() // Limpiamos los sectores al cargar un nuevo juego
             )
             try {
                 currentGame = getRandomGameUseCase()
@@ -89,20 +90,44 @@ class GameViewModel(
             searchQuery = game // sincroniza el fkn input
         )
     }
+    fun showSector(){
+        val currentState = _uiState.value
+        val hiddenSectors = (0..8).filter {
+            it !in currentState.revealedSectors // en caso de que no se adivine correctamente se despeja uno de los sectores (matriz 3x3)
+        }
+
+        val randomSector =
+            hiddenSectors.randomOrNull()
+
+        val updatedSectors =
+            if (randomSector != null)
+                currentState.revealedSectors + randomSector
+            else
+                currentState.revealedSectors
+
+        _uiState.value = currentState.copy(
+            revealedSectors = updatedSectors // Actualiza al sector revelado ingame
+        )
+        loseLife()
+    }
 
     fun onGuess() {
-        val isCorrect = _uiState.value.selectedGame.equals(
-            currentGame?.name, ignoreCase = true
-        )
+        val currentState = _uiState.value
+
+        val isCorrect =
+            currentState.searchQuery.trim()
+                .equals(currentGame?.name?.trim(), ignoreCase = true) // el que selecciono el usuario es el que es?
         if (isCorrect) {
-            loadRandomGame()
+            _uiState.value = currentState.copy(
+                revealedSectors = (0..8).toList() //en caso de que si limpia toda la imagen
+            )
+            loadRandomGame() // Carga el siguiente juego si acierta
         } else {
-            loseLife()
+            showSector()
         }
     }
     fun onSkip() {
-        //TODO: Implementar la logica del blur para el juego
-        loseLife()
+        showSector()
     }
 
     private fun loseLife() {
