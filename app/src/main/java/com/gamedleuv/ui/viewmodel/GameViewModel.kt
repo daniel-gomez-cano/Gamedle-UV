@@ -23,8 +23,8 @@ data class GameUiState(
     val isLoading: Boolean = false,
     val revealedSectors: List<Int> = emptyList(),
     val streak: Int = 0,
-    val hintUnlocked: Boolean = true,
-    val hintUsed: Boolean = true,
+    val hintUnlocked: Boolean = false,
+    val hintUsed: Boolean = false,
     val currentHint: GameHint? = null,
     val isGameOver: Boolean = false
 )
@@ -81,8 +81,6 @@ class GameViewModel(
         viewModelScope.launch {
             val initialSector = (0..8).random()
             _uiState.value = _uiState.value.copy(
-                gameImageUrl = null,
-                isLoading = true,
                 searchQuery = "",
                 selectedGame = "",
                 gameList = emptyList(),
@@ -91,9 +89,10 @@ class GameViewModel(
                 currentHint = null
             )
             try {
-                currentGame = getRandomGameUseCase()
-                Log.d("GAME_DEBUG", "Game seleccionado: ${currentGame?.name}")
-                Log.d("GAME_DEBUG", "URL imagen: ${currentGame?.imageUrl}")
+                val nextGame = getRandomGameUseCase()
+                Log.d("GAME_DEBUG", "Game seleccionado: ${nextGame?.name}")
+                Log.d("GAME_DEBUG", "URL imagen: ${nextGame?.imageUrl}")
+                currentGame = nextGame
                 _uiState.value = _uiState.value.copy(
                     gameImageUrl = currentGame?.imageUrl,
                     isLoading = false
@@ -126,7 +125,7 @@ class GameViewModel(
     private fun handleCorrectGuess() {
         consecutiveWins++
         val newStreak = _uiState.value.streak + 1
-        val newHintUnlocked = consecutiveWins % 10 == 0
+        val newHintUnlocked = consecutiveWins % 3 == 0
 
         _uiState.value = _uiState.value.copy(
             revealedSectors = (0..8).toList(),
@@ -134,7 +133,11 @@ class GameViewModel(
             streak = newStreak,
             hintUnlocked = newHintUnlocked
         )
-        loadRandomGame()
+        viewModelScope.launch {
+            delay(1400)
+            loadRandomGame()
+        }
+
     }
 
     fun onSkip() { showSector() }
