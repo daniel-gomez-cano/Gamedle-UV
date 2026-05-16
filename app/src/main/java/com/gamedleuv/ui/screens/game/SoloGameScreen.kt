@@ -175,8 +175,10 @@ private fun SoloGameContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp)
             ) {
+                Spacer(modifier = Modifier.height(32.dp)) // Espacio para bajar el header
 
                 // HEADER
                 Row(
@@ -188,12 +190,12 @@ private fun SoloGameContent(
                         painter = painterResource(id = R.drawable.virus),
                         contentDescription = "logo",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(60.dp)
+                        modifier = Modifier.size(32.dp) 
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "GAMEDLE",
-                        style = MaterialTheme.typography.headlineLarge.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             shadow = Shadow(
                                 color = Color(0xFFB298DC),
                                 offset = Offset(4f, 4f),
@@ -240,8 +242,9 @@ private fun SoloGameContent(
                     imageUrl = gameImageUrl,
                     revealedSectors = revealedSectors,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.6f)
+                        .fillMaxHeight(0.65f) // Un poquito más grande el rectángulo
+                        .aspectRatio(2f / 3f) // Relación de aspecto correcto para las de portadas
+                        .align(Alignment.CenterHorizontally)
                         .clip(RoundedCornerShape(8.dp))
                 )
 
@@ -346,6 +349,37 @@ private fun HintRow(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SoloGameScreenPreview() {
+    GamedleUVTheme {
+        SoloGameContent(
+            user = User(id = "1", email = "test@test.com", username = "Player One"),
+            lives = 3,
+            maxLives = 5,
+            gameList = listOf("The Legend of Zelda", "Super Mario Bros", "Metroid"),
+            selectedGame = "",
+            searchQuery = "",
+            isLoading = false,
+            revealedSectors = listOf(1, 4, 7),
+            streak = 5,
+            hintUnlocked = true,
+            hintUsed = false,
+            currentHint = null,
+            isGameOver = false,
+            onGameSelected = {},
+            onSkip = {},
+            onGuess = {},
+            onSearchQueryChange = {},
+            onUseHint = {},
+            onDismissHint = {},
+            onReopenHint = {},
+            onDismissGameOver = {},
+            gameImageUrl = null
         )
     }
 }
