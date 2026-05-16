@@ -11,13 +11,11 @@ class AuthRepositoryImpl(
     private val firestore: FirebaseFirestore
 ) : AuthRepository {
 
-    // Se eliminó toDomain() de FirebaseUser porque username no está en Auth,
-    // sino en Firestore — requiere una llamada async para obtenerlo correctamente.
-
     private suspend fun fetchUserFromFirestore(uid: String, email: String?): User {
         val doc = firestore.collection("users").document(uid).get().await()
         val username = doc.getString("username")
-        return User(id = uid, email = email, username = username)
+        val streak = doc.getLong("currentStreak")?.toInt() ?: 0
+        return User(id = uid, email = email, username = username, currentStreak = streak)
     }
 
     override suspend fun register(email: String, password: String, username: String): Result<User?> {
@@ -28,19 +26,18 @@ class AuthRepositoryImpl(
             if (firebaseUser != null) {
                 try {
                     val userData = mapOf(
-                        "uid" to firebaseUser.uid,
-                        "email" to email,
-                        "username" to username,
-                        "createdAt" to System.currentTimeMillis(),
-                        "currentStreak" to 0,
+                        "uid"               to firebaseUser.uid,
+                        "email"             to email,
+                        "username"          to username,
+                        "createdAt"         to System.currentTimeMillis(),
+                        "currentStreak"     to 0,
                         "profilePictureUrl" to ""
                     )
                     firestore.collection("users").document(firebaseUser.uid).set(userData).await()
                     Result.success(User(id = firebaseUser.uid, email = email, username = username))
                 } catch (firestoreException: Exception) {
-                    try {
-                        firebaseUser.delete().await()
-                    } catch (deleteException: Exception) {
+                    try { firebaseUser.delete().await() }
+                    catch (deleteException: Exception) {
                         firestoreException.addSuppressed(deleteException)
                     }
                     Result.failure(firestoreException)
@@ -57,13 +54,26 @@ class AuthRepositoryImpl(
         return try {
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val firebaseUser = result.user
-
-
-            val user = if (firebaseUser != null) {
+            val user = if (firebaseUser != null)
                 fetchUserFromFirestore(firebaseUser.uid, firebaseUser.email)
-            } else null
-
+            else null
             Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Guarda la racha solo si es mayor a la almacenada en Firestore
+    override suspend fun updateStreakIfHigher(uid: String, newStreak: Int): Result<Unit> {
+        return try {
+            val doc = firestore.collection("users").document(uid).get().await()
+            val savedStreak = doc.getLong("currentStreak")?.toInt() ?: 0
+            if (newStreak > savedStreak) {
+                firestore.collection("users").document(uid)
+                    .update("currentStreak", newStreak)
+                    .await()
+            }
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

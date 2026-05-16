@@ -6,6 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.getValue
 import kotlin.lazy
 import kotlin.jvm.java
+import com.gamedleuv.BuildConfig
 
 object RetrofitInstance {
 
@@ -19,8 +20,8 @@ object RetrofitInstance {
                 OkHttpClient.Builder()
                     .addInterceptor { chain ->
                         val request = chain.request().newBuilder()
-                            .addHeader("Client-ID", "")
-                            .addHeader("Authorization", "Bearer kk1pzmq68b1oo4t9mwmn6rn74i0wuc")
+                            .addHeader("Client-ID", BuildConfig.IGDB_CLIENT_ID)
+                            .addHeader("Authorization", "Bearer ${BuildConfig.IGDB_AUTH_TOKEN}")
                             .build()
                         chain.proceed(request)
                     }
