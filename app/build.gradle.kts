@@ -51,8 +51,6 @@ android {
 }
 
 dependencies {
-    // Realtime Database del Firebase para Salas y PvP
-    implementation("com.google.firebase:firebase-database-ktx")
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Retrofit with Scalar Converter
@@ -85,11 +83,13 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
 
-    //
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+    // Realtime Database del Firebase para Salas y PvP
+    implementation("com.google.firebase:firebase-database")
 
     implementation("dev.chrisbanes.haze:haze:1.5.1")
 }
