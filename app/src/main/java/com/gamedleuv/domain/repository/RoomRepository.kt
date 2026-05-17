@@ -1,6 +1,6 @@
 package com.gamedleuv.domain.repository
 
-import com.gamedleuv.data.remote.model.RoomState
+import com.gamedleuv.data.remote.pvp.model.RoomState
 import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {

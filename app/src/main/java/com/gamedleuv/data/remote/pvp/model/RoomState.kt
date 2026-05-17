@@ -1,4 +1,4 @@
-package com.gamedleuv.data.remote.model
+package com.gamedleuv.data.remote.pvp.model
 
 data class RoomState(
     val gameImageUrl: String = "",
