@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    // Realtime Database del Firebase para Salas y PvP
+    implementation("com.google.firebase:firebase-database-ktx")
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Retrofit with Scalar Converter
