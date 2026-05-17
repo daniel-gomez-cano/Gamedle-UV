@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gamedleuv.data.remote.api.RetrofitInstance
 import com.gamedleuv.data.repository.AuthRepositoryImpl
 import com.gamedleuv.data.repository.GameRepositoryImpl
+import com.gamedleuv.data.repository.RoomRepositoryImpl
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
@@ -25,6 +26,8 @@ import com.gamedleuv.ui.screens.auth.LoginScreen
 import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.auth.RegisterScreen
+import com.gamedleuv.ui.screens.game.LobbyScreen
+import com.gamedleuv.ui.screens.game.PvpGameScreen
 import com.gamedleuv.ui.screens.game.SoloGameScreen
 import com.gamedleuv.ui.screens.home.HomeScreen
 import com.gamedleuv.ui.screens.profile.ProfileScreen
@@ -32,7 +35,10 @@ import com.gamedleuv.ui.theme.GamedleUVTheme
 import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.viewmodel.GameViewModel
 import com.gamedleuv.ui.viewmodel.GameViewModelFactory
+import com.gamedleuv.ui.viewmodel.RoomViewModel
+import com.gamedleuv.ui.viewmodel.RoomViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,16 +77,27 @@ fun AppNavigation() {
     val gameRepository = remember {
         GameRepositoryImpl(RetrofitInstance.api)
     }
-
+    val searchGamesUseCase = remember { SearchGamesUseCase(gameRepository) }
     // ← userId eliminado del factory: GameViewModel lo obtiene internamente
     // desde authRepository.getCurrentUser() en el momento de guardar la racha,
     // cuando FirebaseAuth ya tiene sesión activa y el uid nunca es "".
     val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
-            searchGamesUseCase = SearchGamesUseCase(gameRepository),
+            searchGamesUseCase = searchGamesUseCase,
             getRandomGameUseCase = GetRandomGameUseCase(gameRepository),
             authRepository = repo
         )
+    )
+
+    val roomRepository = remember {
+        RoomRepositoryImpl(
+            db = FirebaseDatabase.getInstance(),
+            gameRepository = gameRepository
+        )
+    }
+
+    val roomViewModel: RoomViewModel = viewModel(
+        factory = RoomViewModelFactory(roomRepository, searchGamesUseCase)
     )
 
     val user by authViewModel.currentUser.collectAsState()
@@ -102,7 +119,7 @@ fun AppNavigation() {
             HomeScreen(
                 streak = user?.currentStreak ?: 0,
                 onSoloClick = { navController.navigate(Routes.SOLO_GAME) },
-                onMultiClick = {},
+                onMultiClick = { navController.navigate(Routes.LOBBY) },
                 navController = navController,
                 viewModel = authViewModel
             )
@@ -112,6 +129,22 @@ fun AppNavigation() {
             SoloGameScreen(
                 authViewModel = authViewModel,
                 gameViewModel = gameViewModel
+            )
+        }
+
+        composable(Routes.LOBBY) {
+            LobbyScreen(
+                authViewModel = authViewModel,
+                roomViewModel = roomViewModel,
+                onGameReady = { navController.navigate(Routes.PVP_GAME) }
+            )
+        }
+
+        composable(Routes.PVP_GAME) {
+            PvpGameScreen(
+                authViewModel = authViewModel,
+                roomViewModel = roomViewModel,
+                onGameOver = { navController.navigate(Routes.HOME) }
             )
         }
 
