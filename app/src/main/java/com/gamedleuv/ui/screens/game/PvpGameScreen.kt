@@ -1,242 +1,151 @@
 package com.gamedleuv.ui.screens.game
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gamedleuv.R
+import coil.compose.AsyncImage
+import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
-import com.gamedleuv.ui.components.ProfileButton
-import com.gamedleuv.ui.theme.GamedleUVTheme
+import com.gamedleuv.ui.viewmodel.AuthViewModel
+import com.gamedleuv.ui.viewmodel.RoomViewModel
 
 @Composable
 fun PvpGameScreen(
-    username1: String,
-    avatar1: Int,
-    lives1: Int,
+    authViewModel: AuthViewModel,
+    roomViewModel: RoomViewModel,
+    onGameOver: () -> Unit
+) {
+    val user by authViewModel.currentUser.collectAsState()
+    val state by roomViewModel.uiState.collectAsState()
+    val room = state.room
 
-    username2: String,
-    avatar2: Int,
-    lives2: Int,
+    // Cuando el status sea finished, navega a game over
+    LaunchedEffect(room?.status) {
+        if (room?.status == "finished") onGameOver()
+    }
 
-    maxLives: Int,
-    timer: Int,
-    gameImage: Int,
-    listGames: List<String>,
-    selectedOption: String
-){
-
-    var selectedOption by remember { mutableStateOf(selectedOption) }
-
+    val myUid = state.myUid
+    val players = room?.players ?: emptyMap()
+    val me = players.values.firstOrNull { it.uid == myUid }
+    val rival = players.values.firstOrNull { it.uid != myUid }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF000000))
+            .background(Color.Black)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
-
-            // HEADER
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-
-            ) {
-                //Icono de virus
-                Icon(
-                    painter = painterResource(id = R.drawable.virus),
-                    contentDescription = "logo",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(60.dp)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                //Titulo GAMEDLE
-                Text(
-                    text = "GAMEDLE",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        shadow = Shadow(
-                            color = Color(0xFFB298DC),
-                            offset = Offset(4f, 4f),
-                            blurRadius = 4f
-                        )
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Fila general debajo del titulo
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                // Jugador 1
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = avatar1),
-                        contentDescription = "avatar1",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(36.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Text(
-                        text = username1,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-
-                // TIMER en el centro
-                Text(
-                    text = "${timer}s",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // Jugador 2
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = username2,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Icon(
-                        painter = painterResource(id = avatar2),
-                        contentDescription = "avatar2",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                HeartsRow(
-                    total = maxLives,
-                    filled = lives1,
-                    size = 24
-                )
-
-                HeartsRow(
-                    total = maxLives,
-                    filled = lives2,
-                    size = 24
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-            // IMAGEN DEL JUEGO
-            Image(
-                painter = painterResource(id = gameImage),
-                contentDescription = "game image",
-                contentScale = ContentScale.Crop,
+        if (room == null) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.6f)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Fila del campo de busqueda y la flecha
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
-                //Campo de busqueda
-                DropdownField(
-                    options = listGames,
-                    selected = selectedOption,
-                    onSelectedChange = { selectedOption = it },
-                    modifier = Modifier.weight(1f),
-                    onValueChange = TODO(),
-                    query = TODO(),
-                )
+                // VIDAS: yo vs rival
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = me?.username ?: user?.username ?: "Tú",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        HeartsRow(total = 5, filled = me?.lives ?: 5, size = 24)
+                    }
+                    Text(
+                        text = "VS",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = rival?.username ?: "Rival",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        HeartsRow(total = 5, filled = rival?.lives ?: 5, size = 24)
+                    }
+                }
 
-                //Boton flecha
-                ProfileButton(
-                    img = R.drawable.arrow,
-                    transparent = true,
-                    iconSize = 24.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    onClick = {},
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // IMAGEN DEL JUEGO
+                AsyncImage(
+                    model = room.gameImageUrl,
+                    contentDescription = "portada del juego",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(56.dp)
-
-
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.55f)
+                        .clip(RoundedCornerShape(8.dp))
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // RONDA
+                Text(
+                    text = "Ronda ${room.currentRound}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // BOTÓN SALTAR
+                AppButton(
+                    style = MaterialTheme.typography.labelMedium,
+                    text = "Saltar",
+                    onClick = { roomViewModel.onSkip() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // DROPDOWN + ENVIAR
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DropdownField(
+                        options = state.gameList,
+                        selected = state.searchQuery,
+                        query = state.searchQuery,
+                        onSelectedChange = { roomViewModel.onGameSelected(it) },
+                        onValueChange = { roomViewModel.searchGames(it) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Button(
+                        onClick = { roomViewModel.onGuess() },
+                        modifier = Modifier.size(56.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        shape = RoundedCornerShape(50.dp)
+                    ) {
+                        Text("✓", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
             }
-
         }
-    }
-}
-
-
-@Preview(
-    name = "PvP - Dark Mode",
-    showSystemUi = true
-)
-@Composable
-fun PreviewPvpGameScreen() {
-    GamedleUVTheme(darkTheme = true) {
-            PvpGameScreen(
-                username1 = "elrubiusOmg",
-                avatar1 = R.drawable.profile,
-                lives1 = 2,
-
-                username2 = "kiklo187",
-                avatar2 = R.drawable.profile,
-                lives2 = 1,
-
-                maxLives = 5,
-                timer = 27,
-                gameImage = R.drawable.ic_launcher_background,
-                listGames = listOf(
-                    "A Dance of Fire and Ice",
-                    "A Difficult Game About Climbing",
-                    "A Game About Digging A Hole",
-                    "A Story About My Uncle",
-                    "Abiotic Factor"
-                ),
-                selectedOption = "A",
-            )
-
     }
 }

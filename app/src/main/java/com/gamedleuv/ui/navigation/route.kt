@@ -8,7 +8,7 @@ object Routes { //declaramos las rutas a donde redirigieremos a través de las v
     const val GETCODE = "getCode"
     const val RECOVER = "recover"
     const val NEWPASSWORD = "newPassword"
-
     const val SOLO_GAME = "soloGame"
-
+    const val LOBBY = "lobby"
+    const val PVP_GAME = "pvp_game"
 }
