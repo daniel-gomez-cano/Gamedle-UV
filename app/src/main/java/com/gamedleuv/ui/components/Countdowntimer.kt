@@ -14,7 +14,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.gamedleuv.R
 
-
+/**
+ * Componente reutilizable de cuenta regresiva.
+ *
+ * Este componente es puramente de presentación: recibe [seconds] y lo muestra.
+ * Toda la lógica del temporizador (coroutine, delay, decremento) vive en el
+ * ViewModel correspondiente (p. ej. RoomViewModel.startCountdown).
+ *
+ * @param seconds   Segundos restantes a mostrar. Viene del UiState del ViewModel.
+ * @param modifier  Modificador opcional para el Row contenedor.
+ * @param color     Color del texto e ícono. Por defecto usa onBackground del tema.
+ *
+ * Uso:
+ *   CountdownTimer(seconds = state.remainingSeconds)
+ */
 @Composable
 fun CountdownTimer(
     seconds: Int,
@@ -26,11 +39,14 @@ fun CountdownTimer(
     else
         color
 
-
-    Text(
-        text = "$seconds s",
-        style = MaterialTheme.typography.bodyMedium,
-        color = displayColor
-    )
-
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$seconds s",
+            style = MaterialTheme.typography.bodyMedium,
+            color = displayColor
+        )
+    }
 }

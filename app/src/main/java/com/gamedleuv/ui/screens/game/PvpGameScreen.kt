@@ -27,6 +27,8 @@ import com.gamedleuv.ui.components.ProfileButton
 import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.viewmodel.enums.PvpGameResult
 import com.gamedleuv.ui.viewmodel.RoomViewModel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun PvpGameScreen(
@@ -75,177 +77,190 @@ fun PvpGameScreen(
                     .fillMaxSize()
                     .statusBarsPadding()
                     .padding(horizontal = 16.dp)
-            ) {
-                Spacer(modifier = Modifier.height(32.dp))
 
-                // HEADER
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())  // ← va aquí dentro
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.virus),
-                        contentDescription = "logo",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "GAMEDLE",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            shadow = Shadow(
-                                color = Color(0xFFB298DC),
-                                offset = Offset(4f, 4f),
-                                blurRadius = 4f
-                            )
-                        ),
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // HEADER
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.virus),
+                            contentDescription = "logo",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "GAMEDLE",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                shadow = Shadow(
+                                    color = Color(0xFFB298DC),
+                                    offset = Offset(4f, 4f),
+                                    blurRadius = 4f
+                                )
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // CONTADOR
+                    // El valor viene del ViewModel; la UI solo lo renderiza
+                    CountdownTimer(
+                        seconds = state.remainingSeconds,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // CONTADOR
-                // El valor viene del ViewModel; la UI solo lo renderiza
-                CountdownTimer(
-                    seconds = state.remainingSeconds,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // JUGADORES Y VIDAS
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Jugador (izquierda)
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.weight(1f)
+                    // JUGADORES Y VIDAS
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "avatar",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(28.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = me?.username ?: user?.username ?: "Tú",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        HeartsRow(total = 5, filled = me?.lives ?: 5, size = 28)
-                    }
-
-                    // VS (Centro)
-                    Text(
-                        text = "VS",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-
-                    // Jugador (derecha)
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
+                        // Jugador (izquierda)
+                        Column(
+                            horizontalAlignment = Alignment.Start,
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Text(
-                                text = rival?.username ?: "Rival",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.End
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "avatar rival",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(28.dp)
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.profile),
+                                    contentDescription = "avatar",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = me?.username ?: user?.username ?: "Tú",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            HeartsRow(total = 5, filled = me?.lives ?: 5, size = 28)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        HeartsRow(total = 5, filled = rival?.lives ?: 5, size = 28)
+
+                        // VS (Centro)
+                        Text(
+                            text = "VS",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+
+                        // Jugador (derecha)
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.profile),
+                                    contentDescription = "avatar rival",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = rival?.username ?: "Rival",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            HeartsRow(total = 5, filled = rival?.lives ?: 5, size = 28)
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                // IMAGEN DEL JUEGO
-                //TODO: Esta no es una imagen con blur, falta aplicar esa logica
-                AsyncImage(
-                    model = room.gameImageUrl,
-                    contentDescription = "portada del juego",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.55f)
-                        .clip(RoundedCornerShape(8.dp))
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // RONDA
-                Text(
-                    text = "Ronda ${room.currentRound}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // BOTÓN SALTAR
-                AppButton(
-                    style = MaterialTheme.typography.labelMedium,
-                    text = "Saltar",
-                    onClick = { roomViewModel.onSkip() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // DROPDOWN + ENVIAR
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    DropdownField(
-                        options = state.gameList,
-                        selected = state.searchQuery,
-                        query = state.searchQuery,
-                        onSelectedChange = { roomViewModel.onGameSelected(it) },
-                        onValueChange = { roomViewModel.searchGames(it) },
-                        modifier = Modifier.weight(1f)
+                    // IMAGEN DEL JUEGO
+                    //TODO: Esta no es una imagen con blur, falta aplicar esa logica
+                    AsyncImage(
+                        model = room.gameImageUrl,
+                        contentDescription = "portada del juego",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.65f)
+                            .clip(RoundedCornerShape(8.dp))
                     )
-                    ProfileButton(
-                        img = R.drawable.arrow,
-                        transparent = true,
-                        iconSize = 24.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        onClick = { roomViewModel.onGuess() },
-                        modifier = Modifier.size(56.dp)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // RONDA
+                    Text(
+                        text = "Ronda ${room.currentRound}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // BOTÓN SALTAR
+                    AppButton(
+                        style = MaterialTheme.typography.labelMedium,
+                        text = "Saltar",
+                        onClick = { roomViewModel.onSkip() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .border(
+                                4.dp,
+                                MaterialTheme.colorScheme.primary,
+                                RoundedCornerShape(50.dp)
+                            )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // DROPDOWN + ENVIAR
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DropdownField(
+                            options = state.gameList,
+                            selected = state.searchQuery,
+                            query = state.searchQuery,
+                            onSelectedChange = { roomViewModel.onGameSelected(it) },
+                            onValueChange = { roomViewModel.searchGames(it) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        ProfileButton(
+                            img = R.drawable.arrow,
+                            transparent = true,
+                            iconSize = 24.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            onClick = { roomViewModel.onGuess() },
+                            modifier = Modifier.size(56.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }
