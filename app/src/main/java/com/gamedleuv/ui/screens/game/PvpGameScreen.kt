@@ -9,14 +9,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppButton
+import com.gamedleuv.ui.components.CountdownTimer
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
+import com.gamedleuv.ui.components.ProfileButton
 import com.gamedleuv.ui.viewmodel.AuthViewModel
+import com.gamedleuv.ui.viewmodel.enums.PvpGameResult
 import com.gamedleuv.ui.viewmodel.RoomViewModel
 
 @Composable
@@ -29,11 +38,12 @@ fun PvpGameScreen(
     val state by roomViewModel.uiState.collectAsState()
     val room = state.room
 
-    // Cuando el status sea finished, navega a game over
-    LaunchedEffect(room?.status) {
-        if (room?.status == "finished") onGameOver()
+    // Navega a game over cuando el dialog se cierra después de mostrar el resultado
+    LaunchedEffect(state.showResultDialog) {
+        if (state.gameResult != null && !state.showResultDialog) {
+            onGameOver()
+        }
     }
-
     val myUid = state.myUid
     val players = room?.players ?: emptyMap()
     val me = players.values.firstOrNull { it.uid == myUid }
@@ -50,43 +60,135 @@ fun PvpGameScreen(
                 color = MaterialTheme.colorScheme.primary
             )
         } else {
+
+            // Determinar si se muestra el dialog de resultado
+            val gameResult = state.gameResult
+            if (state.showResultDialog && gameResult != null) {
+                PvpResultDialog(
+                    result = gameResult,
+                    onDismiss = { roomViewModel.onDismissResult() }
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp)
             ) {
-                // VIDAS: yo vs rival
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // HEADER
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.virus),
+                        contentDescription = "logo",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "GAMEDLE",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            shadow = Shadow(
+                                color = Color(0xFFB298DC),
+                                offset = Offset(4f, 4f),
+                                blurRadius = 4f
+                            )
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // CONTADOR
+                // El valor viene del ViewModel; la UI solo lo renderiza
+                CountdownTimer(
+                    seconds = state.remainingSeconds,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // JUGADORES Y VIDAS
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = me?.username ?: user?.username ?: "Tú",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        HeartsRow(total = 5, filled = me?.lives ?: 5, size = 24)
+                    // Jugador (izquierda)
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                contentDescription = "avatar",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = me?.username ?: user?.username ?: "Tú",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        HeartsRow(total = 5, filled = me?.lives ?: 5, size = 28)
                     }
+
+                    // VS (Centro)
                     Text(
                         text = "VS",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = rival?.username ?: "Rival",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        HeartsRow(total = 5, filled = rival?.lives ?: 5, size = 24)
+
+                    // Jugador (derecha)
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                text = rival?.username ?: "Rival",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.End
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                contentDescription = "avatar rival",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        HeartsRow(total = 5, filled = rival?.lives ?: 5, size = 28)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // IMAGEN DEL JUEGO
+                //TODO: Esta no es una imagen con blur, falta aplicar esa logica
                 AsyncImage(
                     model = room.gameImageUrl,
                     contentDescription = "portada del juego",
@@ -97,7 +199,7 @@ fun PvpGameScreen(
                         .clip(RoundedCornerShape(8.dp))
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // RONDA
                 Text(
@@ -107,7 +209,7 @@ fun PvpGameScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // BOTÓN SALTAR
                 AppButton(
@@ -116,11 +218,11 @@ fun PvpGameScreen(
                     onClick = { roomViewModel.onSkip() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(50.dp)
                         .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // DROPDOWN + ENVIAR
                 Row(
@@ -136,16 +238,72 @@ fun PvpGameScreen(
                         onValueChange = { roomViewModel.searchGames(it) },
                         modifier = Modifier.weight(1f)
                     )
-                    Button(
+                    ProfileButton(
+                        img = R.drawable.arrow,
+                        transparent = true,
+                        iconSize = 24.dp,
+                        color = MaterialTheme.colorScheme.primary,
                         onClick = { roomViewModel.onGuess() },
-                        modifier = Modifier.size(56.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        shape = RoundedCornerShape(50.dp)
-                    ) {
-                        Text("✓", style = MaterialTheme.typography.titleLarge)
-                    }
+                        modifier = Modifier.size(56.dp)
+                    )
                 }
             }
         }
     }
+}
+
+// Dialogo de resultado
+@Composable
+private fun PvpResultDialog(
+    result: PvpGameResult,
+    onDismiss: () -> Unit
+) {
+    val (title, message, titleColor) = when (result) {
+        PvpGameResult.WIN  -> Triple(
+            "¡Ganaste!",
+            "Derrotaste a tu rival. ¡Bien jugado!",
+            MaterialTheme.colorScheme.primary
+        )
+        PvpGameResult.LOSE -> Triple(
+            "¡Perdiste!",
+            "Tu rival te ganó esta vez. ¡Vuelve a intentarlo!",
+            MaterialTheme.colorScheme.error
+        )
+        PvpGameResult.DRAW -> Triple(
+            "¡Empate!",
+            "Ambos llegaron al límite al mismo tiempo.",
+            MaterialTheme.colorScheme.tertiary
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = titleColor,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Volver al inicio",
+                    color = titleColor
+                )
+            }
+        }
+    )
 }
