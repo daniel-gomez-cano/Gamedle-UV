@@ -215,25 +215,8 @@ fun PvpGameScreen(
                         color = Color.Gray,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // BOTÓN SALTAR
-                    AppButton(
-                        style = MaterialTheme.typography.labelMedium,
-                        text = "Saltar",
-                        onClick = { roomViewModel.onSkip() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .border(
-                                4.dp,
-                                MaterialTheme.colorScheme.primary,
-                                RoundedCornerShape(50.dp)
-                            )
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
+                    
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     // DROPDOWN + ENVIAR
                     Row(
