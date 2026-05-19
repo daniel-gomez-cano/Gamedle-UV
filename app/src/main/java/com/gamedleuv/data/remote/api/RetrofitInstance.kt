@@ -3,9 +3,6 @@ package com.gamedleuv.data.remote.api
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.getValue
-import kotlin.lazy
-import kotlin.jvm.java
 import com.gamedleuv.BuildConfig
 
 object RetrofitInstance {

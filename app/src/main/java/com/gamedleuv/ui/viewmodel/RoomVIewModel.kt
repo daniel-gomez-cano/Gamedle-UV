@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
 data class RoomUiState(
     val roomCode: String = "",
     val room: RoomState? = null,
@@ -35,6 +36,8 @@ class RoomViewModel(
     val uiState: StateFlow<RoomUiState> = _uiState
 
     private var searchJob: Job? = null
+
+    private var timerJob: Job? = null
 
     fun createRoom(uid: String, username: String) {
         viewModelScope.launch {
@@ -83,16 +86,66 @@ class RoomViewModel(
         }
     }
 
+    private var lastRound = -1
+    private var lastStatus = ""
     private fun observeRoom(code: String) {
         viewModelScope.launch {
             roomRepository.observeRoom(code).collect { room ->
                 _uiState.value = _uiState.value.copy(room = room)
 
-                when {
-                    room?.status == "finished" -> {
-                        resolveGameResult(room)
+                if (room == null) return@collect
+
+                if (room.currentRound != lastRound) {
+                    lastRound = room.currentRound
+                    startTimer()
+                }
+
+                if (room.status != lastStatus) {
+                    lastStatus = room.status
+                    when (room.status) {
+                        "finished" -> {
+                            timerJob?.cancel()
+                            resolveGameResult(room)
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    private fun startTimer() {
+
+        timerJob?.cancel()
+
+        val roomEndTime = _uiState.value.room?.roundEndTime ?: return
+
+        timerJob = viewModelScope.launch {
+
+            while (true) {
+                val room = _uiState.value.room
+
+                if (room != null) {
+                    val remaining =
+                        ((room.roundEndTime - System.currentTimeMillis()) / 1000)
+                            .toInt()
+                            .coerceAtLeast(0)
+                    _uiState.value =
+                        _uiState.value.copy(
+                            remainingSeconds = remaining
+                        )
+                    if (remaining <= 0) {
+                        val room = _uiState.value.room
+                        val myUid = _uiState.value.myUid
+                        val isPlayer1 = room?.players?.get("player1")?.uid == myUid
+
+                        if (isPlayer1) {
+                            roomRepository.evaluateTimer(_uiState.value.roomCode)
+                        }
+                        break
+                    }
+                }
+
+                delay(1000)
             }
         }
     }

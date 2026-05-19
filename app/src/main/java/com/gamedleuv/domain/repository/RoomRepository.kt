@@ -9,4 +9,5 @@ interface RoomRepository {
     fun observeRoom(code: String): Flow<RoomState?>
     suspend fun submitGuess(code: String, uid: String, guess: String, gameName: String)
     suspend fun skipTurn(code: String, uid: String)
+    suspend fun evaluateTimer(code: String)
 }
