@@ -87,7 +87,7 @@ private fun SoloGameContent(
     onDismissGameOver: () -> Unit,
     gameImageUrl: String?
 ) {
-    // ── RF-08: Dialog de Game Over ───────────────────────────────────────────
+
     if (isGameOver) {
         AlertDialog(
             onDismissRequest = onDismissGameOver,
@@ -129,7 +129,7 @@ private fun SoloGameContent(
         )
     }
 
-    // ── RF-05: Dialog de Pista ───────────────────────────────────────────────
+
     if (currentHint != null) {
         AlertDialog(
             onDismissRequest = onDismissHint ,
@@ -266,7 +266,7 @@ private fun SoloGameContent(
                             .height(50.dp)
                     )
 
-                    // RF-05: Botón Pista — habilitado solo si hintUnlocked y no usado
+
                     AppButton(
                         style = MaterialTheme.typography.labelMedium,
                         text = when {

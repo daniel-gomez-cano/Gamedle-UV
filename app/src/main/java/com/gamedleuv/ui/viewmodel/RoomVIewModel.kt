@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gamedleuv.data.remote.pvp.model.RoomState
 import com.gamedleuv.domain.repository.RoomRepository
+import com.gamedleuv.ui.viewmodel.enums.PvpGameResult
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,7 +18,12 @@ data class RoomUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "",
-    val gameList: List<String> = emptyList()
+    val gameList: List<String> = emptyList(),
+
+    //TODO: Crear la logica del contador
+    val remainingSeconds: Int = 30,
+    val gameResult: PvpGameResult? = null,
+    val showResultDialog: Boolean = false
 )
 
 class RoomViewModel(
@@ -26,7 +34,7 @@ class RoomViewModel(
     private val _uiState = MutableStateFlow(RoomUiState())
     val uiState: StateFlow<RoomUiState> = _uiState
 
-    private var searchJob: kotlinx.coroutines.Job? = null
+    private var searchJob: Job? = null
 
     fun createRoom(uid: String, username: String) {
         viewModelScope.launch {
@@ -79,6 +87,12 @@ class RoomViewModel(
         viewModelScope.launch {
             roomRepository.observeRoom(code).collect { room ->
                 _uiState.value = _uiState.value.copy(room = room)
+
+                when {
+                    room?.status == "finished" -> {
+                        resolveGameResult(room)
+                    }
+                }
             }
         }
     }
@@ -95,7 +109,7 @@ class RoomViewModel(
         }
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            kotlinx.coroutines.delay(400)
+            delay(400)
             try {
                 val result = searchGamesUseCase(query)
                 _uiState.value = _uiState.value.copy(
@@ -143,5 +157,30 @@ class RoomViewModel(
                 e.printStackTrace()
             }
         }
+    }
+
+
+    //Logica basica para determinar el ganador de la partida
+    //TODO: Mejorar lógica para determinar ganador e implementarla
+    fun onDismissResult() {
+        _uiState.value = _uiState.value.copy(showResultDialog = false)
+    }
+
+    private fun resolveGameResult(room: RoomState) {
+        val myUid   = _uiState.value.myUid
+        val players = room.players
+        val me      = players.values.firstOrNull { it.uid == myUid }
+        val rival   = players.values.firstOrNull { it.uid != myUid }
+
+        val result = when {
+            (me?.lives ?: 0) > (rival?.lives ?: 0) -> PvpGameResult.WIN
+            (me?.lives ?: 0) < (rival?.lives ?: 0) -> PvpGameResult.LOSE
+            else                                    -> PvpGameResult.DRAW //Valor por defecto en caso de fallo :,v
+        }
+
+        _uiState.value = _uiState.value.copy(
+            gameResult = result,
+            showResultDialog = true
+        )
     }
 }
