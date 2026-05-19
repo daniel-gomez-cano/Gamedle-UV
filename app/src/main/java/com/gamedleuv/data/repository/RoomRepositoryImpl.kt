@@ -36,6 +36,7 @@ class RoomRepositoryImpl(
             gameImageUrl = game?.imageUrl ?: "",
             gameName = game?.name ?: "",
             status = "waiting",
+            roundEndTime = System.currentTimeMillis() + 30000,
             players = mapOf(
                 "player1" to PlayerState(
                     uid = uid,
@@ -80,58 +81,110 @@ class RoomRepositoryImpl(
         awaitClose { rooms.child(code).removeEventListener(listener) }
     }
 
-    override suspend fun submitGuess(
-        code: String,
-        uid: String,
-        guess: String,
-        gameName: String
-    ) {
+    override suspend fun submitGuess(code: String, uid: String, guess: String, gameName: String) {
+
         val snapshot = rooms.child(code).get().await()
         val room = snapshot.getValue(RoomState::class.java) ?: return
 
-        // Identifica qué player es el que adivina
         val playerKey = room.players.entries
             .firstOrNull { it.value.uid == uid }?.key ?: return
 
-        val rivalKey = if (playerKey == "player1") "player2" else "player1"
-        val isCorrect = guess.trim().equals(gameName.trim(), ignoreCase = true)
+        val isCorrect =
+            guess.trim().equals(gameName.trim(), ignoreCase = true)
 
-        if (isCorrect) {
-            // Le quita una vida al rival
-            val rivalLives = (room.players[rivalKey]?.lives ?: 0) - 1
-            rooms.child(code).child("players").child(rivalKey)
-                .child("lives").setValue(rivalLives).await()
+        val responseTime =
+            System.currentTimeMillis() - room.roundEndTime
 
-            if (rivalLives <= 0) {
-                rooms.child(code).child("status").setValue("finished").await()
-            } else {
-                // Carga el siguiente juego
-                val nextGame = gameRepository.getRandomGame()
-                rooms.child(code).updateChildren(
-                    mapOf(
-                        "gameImageUrl" to (nextGame?.imageUrl ?: ""),
-                        "gameName" to (nextGame?.name ?: ""),
-                        "currentRound" to (room.currentRound + 1),
-                        "players/player1/hasGuessed" to false,
-                        "players/player2/hasGuessed" to false,
-                        "players/player1/lastGuess" to "",
-                        "players/player2/lastGuess" to ""
-                    )
-                ).await()
+        rooms.child(code)
+            .child("players")
+            .child(playerKey)
+            .updateChildren(
+                mapOf(
+                    "hasAnswered" to true,
+                    "answeredCorrectly" to isCorrect,
+                    "responseTime" to responseTime
+                )
+            ).await()
+
+        evaluateRound(code) //Guarda la respuesta de cada jugador en firebase
+    }
+
+    private suspend fun evaluateRound(code: String) {
+        val snapshot = rooms.child(code).get().await()
+        val room = snapshot.getValue(RoomState::class.java) ?: return
+        val p1 = room.players["player1"] ?: return
+        val p2 = room.players["player2"] ?: return
+
+        // Esperar a que ambos respondan
+        if (!p1.hasAnswered || !p2.hasAnswered) return
+
+        // Solo el primer cliente que escriba "evaluating" gana la race condition
+        val statusRef = rooms.child(code).child("status")
+        val currentStatus = statusRef.get().await().getValue(String::class.java)
+
+        // Si ya alguien está evaluando o terminó, salir
+        if (currentStatus == "evaluating" || currentStatus == "finished") return
+
+        // Intentar tomar que el que llegue primero escribe "evaluating"
+        statusRef.setValue("evaluating").await()
+
+        val verifyStatus = statusRef.get().await().getValue(String::class.java)
+        if (verifyStatus != "evaluating") return
+
+        var p1Lives = p1.lives
+        var p2Lives = p2.lives
+
+        when { // Evaluamos las condiciones de ganar, quien responde antes, si uno se equivoca o si ninguno responde
+            p1.answeredCorrectly && p2.answeredCorrectly -> {
+                if (p1.responseTime > p2.responseTime) p1Lives-- else p2Lives--
             }
-        } else {
-            // Respuesta incorrecta: le quita una vida al que se equivocó
-            val myLives = (room.players[playerKey]?.lives ?: 0) - 1
-            rooms.child(code).child("players").child(playerKey)
-                .child("lives").setValue(myLives).await()
-
-            rooms.child(code).child("players").child(playerKey)
-                .child("hasGuessed").setValue(true).await()
-
-            if (myLives <= 0) {
-                rooms.child(code).child("status").setValue("finished").await()
+            p1.answeredCorrectly && !p2.answeredCorrectly -> {
+                p2Lives--
+            }
+            !p1.answeredCorrectly && p2.answeredCorrectly -> {
+                p1Lives--
+            }
+            else -> {
+                p1Lives--
+                p2Lives--
             }
         }
+
+        rooms.child(code).updateChildren(
+            mapOf(
+                "players/player1/lives" to p1Lives,
+                "players/player2/lives" to p2Lives
+            )
+        ).await()
+
+        if (p1Lives <= 0 || p2Lives <= 0) {
+            rooms.child(code).child("status").setValue("finished").await()
+            return
+        }
+
+        nextRound(code, room)
+    }
+
+
+    private suspend fun nextRound(code: String, room: RoomState) { // para la siguiente ronda cambia de juego y restaura el timer
+        val nextGame = gameRepository.getRandomGame()
+
+        rooms.child(code).updateChildren(
+            mapOf(
+                "gameImageUrl" to (nextGame?.imageUrl ?: ""),
+                "gameName" to (nextGame?.name ?: ""),
+                "currentRound" to (room.currentRound + 1),
+                "roundEndTime" to System.currentTimeMillis() + 30000,
+                "status" to "playing",
+
+                "players/player1/hasAnswered" to false,
+                "players/player2/hasAnswered" to false,
+                "players/player1/answeredCorrectly" to false,
+                "players/player2/answeredCorrectly" to false,
+                "players/player1/responseTime" to 0L,
+                "players/player2/responseTime" to 0L
+            )
+        ).await()
     }
 
     override suspend fun skipTurn(code: String, uid: String) {
@@ -147,5 +200,25 @@ class RoomRepositoryImpl(
         if (myLives <= 0) {
             rooms.child(code).child("status").setValue("finished").await()
         }
+    }
+
+    override suspend fun evaluateTimer(code: String) { // Evalua el tiempo dentro del juego, toma el tiempo de respuesta de cada jugador y si nadie respondio en los 30 segundos pierden ambos
+        val snapshot = rooms.child(code).get().await()
+        val room = snapshot.getValue(RoomState::class.java) ?: return
+
+        val updates = mutableMapOf<String, Any>()
+
+        room.players.forEach { (key, player) ->
+            if (!player.hasAnswered) {
+                updates["players/$key/hasAnswered"] = true
+                updates["players/$key/answeredCorrectly"] = false
+                updates["players/$key/responseTime"] = Long.MAX_VALUE
+            }
+        }
+
+        if (updates.isNotEmpty()) {
+            rooms.child(code).updateChildren(updates).await()
+        }
+        evaluateRound(code)
     }
 }
