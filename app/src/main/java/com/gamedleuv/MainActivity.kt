@@ -18,6 +18,7 @@ import com.gamedleuv.data.repository.GameRepositoryImpl
 import com.gamedleuv.data.repository.RoomRepositoryImpl
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
+import com.gamedleuv.domain.usecase.auth.UploadProfilePictureUseCase
 import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
 import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
 import com.gamedleuv.ui.navigation.Routes
@@ -40,6 +41,7 @@ import com.gamedleuv.ui.viewmodel.RoomViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -62,7 +64,7 @@ fun AppNavigation() {
     val repo = remember {
         AuthRepositoryImpl(
             firebaseAuth = FirebaseAuth.getInstance(),
-            firestore = FirebaseFirestore.getInstance()
+            firestore = FirebaseFirestore.getInstance(),
         )
     }
 
@@ -70,6 +72,7 @@ fun AppNavigation() {
         AuthViewModel(
             registerUser = RegisterUserUseCase(repo),
             loginUser = LoginUserUseCase(repo),
+            uploadProfilePicture = UploadProfilePictureUseCase(repo),
             scope = CoroutineScope(Dispatchers.Main)
         )
     }

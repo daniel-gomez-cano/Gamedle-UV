@@ -10,16 +10,19 @@
     import androidx.compose.runtime.Composable
     import androidx.compose.runtime.collectAsState
     import androidx.compose.runtime.getValue
+    import androidx.compose.runtime.remember
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
     import androidx.compose.ui.draw.clip
     import androidx.compose.ui.graphics.Color
+    import androidx.compose.ui.layout.ContentScale
     import androidx.compose.ui.res.painterResource
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.tooling.preview.Preview
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
     import androidx.navigation.NavController
+    import coil.compose.AsyncImage
     import com.gamedleuv.R
     import com.gamedleuv.ui.theme.GamedleUVTheme
     import com.gamedleuv.ui.components.MenuCard
@@ -55,31 +58,42 @@
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
-
                 ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.profile),
-                        //falta implementar la logica para las fotos de perfil, para poder preguntar user?.avatar ?: R.drawable.profile (si no tiene foto asignar la default)
-                        contentDescription = "avatar",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(50))
-                            .clickable(onClick = {
-                                navController.navigate(Routes.PROFILE)
-                            },)
-                    )
+                    // FOTO DE PERFIL
+                    if (user?.profilePictureUrl.isNullOrEmpty()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile),
+                            contentDescription = "avatar",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { navController.navigate(Routes.PROFILE) }
+                        )
+                    } else {
+                        val imageData = remember(user?.profilePictureUrl) {
+                            user?.profilePictureUrl?.let { url ->
+                                val base64 = url.substringAfter("base64,")
+                                android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                            }
+                        }
+                        AsyncImage(
+                            model = imageData,
+                            contentDescription = "avatar",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { navController.navigate(Routes.PROFILE) }
+                        )
+                    }
 
                     Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
                         text = user?.username ?: "Cargando...",
                         color = Color.White,
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-
-                Spacer(modifier = Modifier.height(70.dp))
 
                 // Logo
                 Row(

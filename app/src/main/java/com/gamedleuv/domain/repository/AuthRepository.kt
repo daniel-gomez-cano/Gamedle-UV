@@ -9,5 +9,8 @@ interface AuthRepository {
     fun getCurrentUser(): User?
     fun logout()
     suspend fun updateStreakIfHigher(uid: String, newStreak: Int): Result<Unit>
+
+    suspend fun uploadProfilePicture(uid: String, imageBytes: ByteArray): Result<String>
+    suspend fun updateProfilePictureUrl(uid: String, url: String): Result<Unit>
 }
 

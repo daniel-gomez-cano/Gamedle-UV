@@ -4,18 +4,20 @@ import com.gamedleuv.domain.model.User
 import com.gamedleuv.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
 ) : AuthRepository {
 
     private suspend fun fetchUserFromFirestore(uid: String, email: String?): User {
         val doc = firestore.collection("users").document(uid).get().await()
         val username = doc.getString("username")
         val streak = doc.getLong("currentStreak")?.toInt() ?: 0
-        return User(id = uid, email = email, username = username, currentStreak = streak)
+        val profilePictureUrl = doc.getString("profilePictureUrl") ?: ""
+        return User(id = uid, email = email, username = username, currentStreak = streak, profilePictureUrl = profilePictureUrl)
     }
 
     override suspend fun register(email: String, password: String, username: String): Result<User?> {
@@ -77,6 +79,7 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+
     }
 
     override fun getCurrentUser(): User? {
@@ -86,5 +89,33 @@ class AuthRepositoryImpl(
 
     override fun logout() {
         firebaseAuth.signOut()
+    }
+
+    override suspend fun uploadProfilePicture(uid: String, imageBytes: ByteArray): Result<String> {
+        return try {
+            // Convierte la imagen a Base64
+            val base64 = android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT)
+            val dataUrl = "data:image/jpeg;base64,$base64"
+
+            // Guarda directo en Firestore
+            firestore.collection("users").document(uid)
+                .update("profilePictureUrl", dataUrl)
+                .await()
+
+            Result.success(dataUrl)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateProfilePictureUrl(uid: String, url: String): Result<Unit> {
+        return try {
+            firestore.collection("users").document(uid)
+                .update("profilePictureUrl", url)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
