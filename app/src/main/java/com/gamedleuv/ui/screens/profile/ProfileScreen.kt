@@ -146,9 +146,6 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = user?.username ?: "Cargando...")
-
             Spacer(modifier = Modifier.height(64.dp))
 
             //Username
