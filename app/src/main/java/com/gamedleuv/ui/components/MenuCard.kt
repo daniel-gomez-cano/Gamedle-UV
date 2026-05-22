@@ -33,7 +33,7 @@ fun MenuCard(
                 shape = RoundedCornerShape(18.dp)
             )
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF111111))
+            .background(Color.Transparent)
             .clickable { onClick() }
             .padding(20.dp)
     ) {
