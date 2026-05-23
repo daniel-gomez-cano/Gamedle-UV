@@ -13,6 +13,7 @@ data class RoomState(
 data class PlayerState(
     val uid: String = "",
     val username: String = "",
+    val profilePictureUrl: String = "",
     val lives: Int = 5,
 
     val hasAnswered: Boolean = false,

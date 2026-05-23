@@ -18,6 +18,7 @@ import com.gamedleuv.data.repository.GameRepositoryImpl
 import com.gamedleuv.data.repository.RoomRepositoryImpl
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
+import com.gamedleuv.domain.usecase.auth.UploadProfilePictureUseCase
 import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
 import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
 import com.gamedleuv.ui.navigation.Routes
@@ -61,7 +62,7 @@ fun AppNavigation() {
     val repo = remember {
         AuthRepositoryImpl(
             firebaseAuth = FirebaseAuth.getInstance(),
-            firestore = FirebaseFirestore.getInstance()
+            firestore = FirebaseFirestore.getInstance(),
         )
     }
 
@@ -71,6 +72,8 @@ fun AppNavigation() {
             loginUser = LoginUserUseCase(repo),
             scope = CoroutineScope(Dispatchers.Main),
             resetPassword = ResetPasswordUserCase(repo),
+            uploadProfilePicture = UploadProfilePictureUseCase(repo),
+            scope = CoroutineScope(Dispatchers.Main)
         )
     }
 

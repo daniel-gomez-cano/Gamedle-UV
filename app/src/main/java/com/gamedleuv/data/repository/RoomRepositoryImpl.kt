@@ -26,7 +26,7 @@ class RoomRepositoryImpl(
         return (1..4).map { chars.random() }.joinToString("")
     }
 
-    override suspend fun createRoom(uid: String, username: String): String {
+    override suspend fun createRoom(uid: String, username: String, profilePictureUrl: String): String {
         val code = generateCode()
 
         // Obtiene un juego aleatorio de IGDB para esta sala
@@ -41,7 +41,8 @@ class RoomRepositoryImpl(
                 "player1" to PlayerState(
                     uid = uid,
                     username = username,
-                    lives = 5
+                    lives = 5,
+                    profilePictureUrl = profilePictureUrl
                 )
             )
         )
@@ -50,7 +51,7 @@ class RoomRepositoryImpl(
         return code
     }
 
-    override suspend fun joinRoom(code: String, uid: String, username: String): Boolean {
+    override suspend fun joinRoom(code: String, uid: String, username: String, profilePictureUrl: String): Boolean {
         val snapshot = rooms.child(code).get().await()
         if (!snapshot.exists()) return false
 
@@ -60,7 +61,7 @@ class RoomRepositoryImpl(
 
         // Agrega player2 y cambia status a playing
         rooms.child(code).child("players").child("player2").setValue(
-            PlayerState(uid = uid, username = username, lives = 5)
+            PlayerState(uid = uid, username = username, lives = 5, profilePictureUrl = profilePictureUrl)
         ).await()
 
         rooms.child(code).child("status").setValue("playing").await()

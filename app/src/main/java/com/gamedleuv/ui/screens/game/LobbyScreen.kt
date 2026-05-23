@@ -45,12 +45,14 @@ fun LobbyScreen(
                 onCreateRoom = {
                     val uid = user?.id ?: return@LobbyInitialContent
                     val username = user?.username ?: return@LobbyInitialContent
-                    roomViewModel.createRoom(uid, username)
+                    val profilePictureUrl = user?.profilePictureUrl ?: ""
+                    roomViewModel.createRoom(uid, username, profilePictureUrl)
                 },
                 onJoinRoom = { code ->
                     val uid = user?.id ?: return@LobbyInitialContent
                     val username = user?.username ?: return@LobbyInitialContent
-                    roomViewModel.joinRoom(code, uid, username)
+                    val profilePictureUrl = user?.profilePictureUrl ?: ""
+                    roomViewModel.joinRoom(code, uid, username, profilePictureUrl)
                 },
                 error = state.error
             )
