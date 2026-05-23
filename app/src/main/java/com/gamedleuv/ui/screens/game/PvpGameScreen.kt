@@ -1,7 +1,6 @@
 package com.gamedleuv.ui.screens.game
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,7 +18,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.gamedleuv.R
-import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.CountdownTimer
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
