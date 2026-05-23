@@ -1,6 +1,5 @@
 package com.gamedleuv.ui.screens.auth
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,10 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.AppTextField
-import com.gamedleuv.ui.theme.GamedleUVTheme
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

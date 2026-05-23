@@ -16,7 +16,8 @@ class GameRepositoryImpl(
         val bodyString = """
             search "$query";
             fields name, cover.url;
-            limit 10;
+            where cover != null;
+            limit 15;
         """.trimIndent()
 
         val body = bodyString.toRequestBody("text/plain".toMediaType())
@@ -38,18 +39,18 @@ class GameRepositoryImpl(
     }
 
     override suspend fun getRandomGame(): Game? {
-        val offset = (0..3000).random()
-
+        val offset = (0..600).random()
+        // Juegos medianamente conocidos, pero limita más las opciones
         val bodyString = """
             fields name, cover.url, first_release_date,
                    genres.name,
                    involved_companies.company.name,
                    involved_companies.publisher;
-            where cover != null & rating_count > 30;
-            limit 1;
+            where cover != null & rating_count > 250;
+            limit 10;
             offset $offset;
         """.trimIndent()
-
+        // Trae 10 opciones diferentes, así no se queda sin opciones en caso de null
         val body = bodyString.toRequestBody("text/plain".toMediaType())
 
         return api.searchGames(body = body)
@@ -84,6 +85,7 @@ class GameRepositoryImpl(
                     genre = genre
                 )
             }
-            .firstOrNull()
+            .randomOrNull()
+            // De las 10 opciones que trae la petición, se escoge una random
     }
 }

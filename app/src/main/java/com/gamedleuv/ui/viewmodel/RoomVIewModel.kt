@@ -39,11 +39,11 @@ class RoomViewModel(
 
     private var timerJob: Job? = null
 
-    fun createRoom(uid: String, username: String) {
+    fun createRoom(uid: String, username: String, profilePictureUrl: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val code = roomRepository.createRoom(uid, username)
+                val code = roomRepository.createRoom(uid, username, profilePictureUrl)
                 _uiState.value = _uiState.value.copy(
                     roomCode = code,
                     myUid = uid,
@@ -59,11 +59,11 @@ class RoomViewModel(
         }
     }
 
-    fun joinRoom(code: String, uid: String, username: String) {
+    fun joinRoom(code: String, uid: String, username: String, profilePictureUrl: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val joined = roomRepository.joinRoom(code, uid, username)
+                val joined = roomRepository.joinRoom(code, uid, username, profilePictureUrl)
                 if (joined) {
                     _uiState.value = _uiState.value.copy(
                         roomCode = code,

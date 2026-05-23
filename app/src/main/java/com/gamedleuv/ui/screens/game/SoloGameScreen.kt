@@ -3,6 +3,7 @@ package com.gamedleuv.ui.screens.game
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,10 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.gamedleuv.R
 import com.gamedleuv.domain.model.User
 import com.gamedleuv.ui.components.AppButton
@@ -215,12 +218,29 @@ private fun SoloGameContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.profile),
-                            contentDescription = "avatar",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(36.dp)
-                        )
+                        val imageData = remember(user?.profilePictureUrl) {
+                            user?.profilePictureUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                                val base64 = url.substringAfter("base64,")
+                                android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                            }
+                        }
+                        if (imageData != null) {
+                            AsyncImage(
+                                model = imageData,
+                                contentDescription = "avatar",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                contentDescription = "avatar",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = user?.username ?: "Cargando...",

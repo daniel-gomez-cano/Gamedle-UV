@@ -80,9 +80,10 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.4.1")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     // Realtime Database del Firebase para Salas y PvP
     implementation("com.google.firebase:firebase-database")

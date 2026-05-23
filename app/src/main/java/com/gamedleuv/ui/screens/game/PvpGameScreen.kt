@@ -1,7 +1,6 @@
 package com.gamedleuv.ui.screens.game
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,7 +18,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.gamedleuv.R
-import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.CountdownTimer
 import com.gamedleuv.ui.components.DropdownField
 import com.gamedleuv.ui.components.HeartsRow
@@ -125,6 +123,7 @@ fun PvpGameScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // JUGADORES Y VIDAS
+                    // JUGADORES Y VIDAS
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -136,12 +135,29 @@ fun PvpGameScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.profile),
-                                    contentDescription = "avatar",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(28.dp)
-                                )
+                                val myImageData = remember(me?.profilePictureUrl) {
+                                    me?.profilePictureUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                                        val base64 = url.substringAfter("base64,")
+                                        android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                                    }
+                                }
+                                if (myImageData != null) {
+                                    AsyncImage(
+                                        model = myImageData,
+                                        contentDescription = "avatar",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.profile),
+                                        contentDescription = "avatar",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = me?.username ?: user?.username ?: "Tú",
@@ -163,7 +179,7 @@ fun PvpGameScreen(
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
 
-                        // Jugador (derecha)
+                        // Rival (derecha)
                         Column(
                             horizontalAlignment = Alignment.End,
                             modifier = Modifier.weight(1f)
@@ -172,12 +188,29 @@ fun PvpGameScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.profile),
-                                    contentDescription = "avatar rival",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(28.dp)
-                                )
+                                val rivalImageData = remember(rival?.profilePictureUrl) {
+                                    rival?.profilePictureUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                                        val base64 = url.substringAfter("base64,")
+                                        android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                                    }
+                                }
+                                if (rivalImageData != null) {
+                                    AsyncImage(
+                                        model = rivalImageData,
+                                        contentDescription = "avatar rival",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(androidx.compose.foundation.shape.CircleShape)
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.profile),
+                                        contentDescription = "avatar rival",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = rival?.username ?: "Rival",
