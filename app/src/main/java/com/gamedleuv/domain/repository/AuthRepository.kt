@@ -9,5 +9,7 @@ interface AuthRepository {
     fun getCurrentUser(): User?
     fun logout()
     suspend fun updateStreakIfHigher(uid: String, newStreak: Int): Result<Unit>
+
+    suspend fun sendPasswordReset(email: String): Result<Unit>
 }
 

@@ -3,6 +3,7 @@ package com.gamedleuv.ui.viewmodel
 import com.gamedleuv.domain.model.User
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
+import com.gamedleuv.domain.usecase.auth.ResetPasswordUserCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
     private val registerUser: RegisterUserUseCase,
     private val loginUser: LoginUserUseCase,
-    private val scope: CoroutineScope  //Fix Copilot: scope inyectado externamente
+    private val resetPassword: ResetPasswordUserCase,
+    private val scope: CoroutineScope
 ) {
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
@@ -50,6 +52,18 @@ class AuthViewModel(
 
     fun resetState() {
         _uiState.value = AuthUiState.Idle
+    }
+
+    fun sendPasswordReset(email: String) {
+        scope.launch {
+            _uiState.value = AuthUiState.Loading
+            val result = resetPassword(email)
+            _uiState.value = if (result.isSuccess) {
+                AuthUiState.Success("Correo enviado")
+            } else {
+                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error")
+            }
+        }
     }
 }
 
