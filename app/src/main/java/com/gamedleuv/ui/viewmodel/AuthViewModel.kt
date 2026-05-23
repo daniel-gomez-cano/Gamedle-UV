@@ -14,7 +14,6 @@ class AuthViewModel(
     private val registerUser: RegisterUserUseCase,
     private val loginUser: LoginUserUseCase,
     private val resetPassword: ResetPasswordUserCase,
-    private val scope: CoroutineScope
     private val uploadProfilePicture: UploadProfilePictureUseCase,
     private val scope: CoroutineScope  //Fix Copilot: scope inyectado externamente
 ) {
