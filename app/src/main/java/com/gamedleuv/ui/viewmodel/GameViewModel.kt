@@ -23,8 +23,9 @@ data class GameUiState(
     val isLoading: Boolean = false,
     val revealedSectors: List<Int> = emptyList(),
     val streak: Int = 0,
-    val hintUnlocked: Boolean = false,
+    val hintUnlocked: Boolean = true,   // La pista empieza desbloqueada
     val hintUsed: Boolean = false,
+    val hintGamesLeft: Int = 0,         // Juegos restantes para recargar la pista (0 = disponible)
     val currentHint: GameHint? = null,
     val isGameOver: Boolean = false
 )
@@ -41,11 +42,21 @@ class GameViewModel(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    companion object {
+        // Número de juegos sin usar la pista necesarios para recargarla
+        // EDITAR EN CASO DE CAMBIAR EL NÚMERO DE JUEGOS NECESARIOS PARA RECARGARLA
+        private const val HINT_RECHARGE_GAMES = 5
+    }
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState
 
     private var currentGame: Game? = null
     private var consecutiveWins: Int = 0
+
+    // Cuántos juegos ha jugado el usuario con la pista desactivada (sin usarla)
+    // Cuando llega a HINT_RECHARGE_GAMES la pista se reactiva
+    private var gamesWithoutHint: Int = 0
 
     init {
         loadRandomGame()
@@ -77,15 +88,47 @@ class GameViewModel(
 
     // ─── Carga de juego ─────────────────────────────────────────────────────
 
-    private fun loadRandomGame() {
+    private fun loadRandomGame(isFirstLoad: Boolean = false) {
         viewModelScope.launch {
             val initialSector = (0..8).random()
+
+
+            val newHintUnlocked: Boolean
+            val newGamesWithoutHint: Int
+
+            if (isFirstLoad) {
+                newHintUnlocked = true
+                newGamesWithoutHint = 0
+            } else {
+                val hintWasUsed = _uiState.value.hintUsed
+
+                if (_uiState.value.hintUnlocked && !hintWasUsed) {
+                    // La pista estaba disponible pero el usuario NO la usó.
+                    // Sigue desbloqueada para el siguiente juego.
+                    newHintUnlocked = true
+                    newGamesWithoutHint = gamesWithoutHint
+                } else if (hintWasUsed) {
+                    // El usuario usó la pista -> desactivarla y empezar a contar.
+                    newGamesWithoutHint = 1
+                    newHintUnlocked = false
+                } else {
+                    // Pista ya estaba desactivada -> incrementar contador.
+                    val updated = gamesWithoutHint + 1
+                    newGamesWithoutHint = if (updated >= HINT_RECHARGE_GAMES) 0 else updated
+                    newHintUnlocked = updated >= HINT_RECHARGE_GAMES
+                }
+            }
+
+            gamesWithoutHint = newGamesWithoutHint
+
             _uiState.value = _uiState.value.copy(
                 searchQuery = "",
                 selectedGame = "",
                 gameList = emptyList(),
                 revealedSectors = listOf(initialSector),
                 hintUsed = false,
+                hintUnlocked = newHintUnlocked,
+                hintGamesLeft = if (newHintUnlocked) 0 else HINT_RECHARGE_GAMES - newGamesWithoutHint,
                 currentHint = null
             )
             try {
@@ -125,19 +168,16 @@ class GameViewModel(
     private fun handleCorrectGuess() {
         consecutiveWins++
         val newStreak = _uiState.value.streak + 1
-        val newHintUnlocked = consecutiveWins % 3 == 0
 
         _uiState.value = _uiState.value.copy(
             revealedSectors = (0..8).toList(),
             lives = _uiState.value.maxLives,
-            streak = newStreak,
-            hintUnlocked = newHintUnlocked
+            streak = newStreak
         )
         viewModelScope.launch {
             delay(1400)
             loadRandomGame()
         }
-
     }
 
     fun onSkip() { showSector() }
@@ -171,9 +211,6 @@ class GameViewModel(
             consecutiveWins = 0
             val finalStreak = _uiState.value.streak
 
-            // ← FIX: obtener el uid en el momento de guardar, no al construir el ViewModel.
-            // getCurrentUser() lee de FirebaseAuth que ya tiene sesión activa,
-            // así el uid nunca es "".
             val uid = authRepository.getCurrentUser()?.id
             if (uid != null) {
                 viewModelScope.launch {
@@ -203,8 +240,7 @@ class GameViewModel(
         )
         _uiState.value = state.copy(
             currentHint = hint,
-            hintUsed = true,
-            hintUnlocked = false
+            hintUsed = true
         )
     }
 
@@ -227,13 +263,15 @@ class GameViewModel(
 
     fun onDismissGameOver() {
         consecutiveWins = 0
+        gamesWithoutHint = 0
         _uiState.value = GameUiState()
-        loadRandomGame()
+        loadRandomGame(isFirstLoad = true)
     }
 
     fun resetGame() {
         consecutiveWins = 0
+        gamesWithoutHint = 0
         _uiState.value = GameUiState()
-        loadRandomGame()
+        loadRandomGame(isFirstLoad = true)
     }
 }
