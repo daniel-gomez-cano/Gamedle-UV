@@ -22,9 +22,7 @@ import com.gamedleuv.domain.usecase.auth.UploadProfilePictureUseCase
 import com.gamedleuv.domain.usecase.game.GetRandomGameUseCase
 import com.gamedleuv.domain.usecase.game.SearchGamesUseCase
 import com.gamedleuv.ui.navigation.Routes
-import com.gamedleuv.ui.screens.auth.GetCodeScreen
 import com.gamedleuv.ui.screens.auth.LoginScreen
-import com.gamedleuv.ui.screens.auth.NewPasswordScreen
 import com.gamedleuv.ui.screens.auth.RecoverPasswordScreen
 import com.gamedleuv.ui.screens.auth.RegisterScreen
 import com.gamedleuv.ui.screens.game.LobbyScreen
@@ -43,6 +41,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import com.gamedleuv.domain.usecase.auth.ResetPasswordUserCase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +70,8 @@ fun AppNavigation() {
         AuthViewModel(
             registerUser = RegisterUserUseCase(repo),
             loginUser = LoginUserUseCase(repo),
+            scope = CoroutineScope(Dispatchers.Main),
+            resetPassword = ResetPasswordUserCase(repo),
             uploadProfilePicture = UploadProfilePictureUseCase(repo),
             scope = CoroutineScope(Dispatchers.Main)
         )
@@ -155,15 +156,7 @@ fun AppNavigation() {
         }
 
         composable(Routes.RECOVER) {
-            RecoverPasswordScreen(navController)
-        }
-
-        composable(Routes.GETCODE) {
-            GetCodeScreen(navController)
-        }
-
-        composable(Routes.NEWPASSWORD) {
-            NewPasswordScreen(navController)
+            RecoverPasswordScreen(navController, authViewModel)
         }
     }
 }

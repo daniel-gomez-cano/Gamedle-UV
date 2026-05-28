@@ -90,6 +90,22 @@ class AuthRepositoryImpl(
         firebaseAuth.signOut()
     }
 
+    override suspend fun sendPasswordReset(
+        email: String
+    ): Result<Unit> {
+
+        return try {
+
+            firebaseAuth
+                .sendPasswordResetEmail(email)
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {  Result.failure(e)
+        }
+    }
+
     override suspend fun uploadProfilePicture(uid: String, imageBytes: ByteArray): Result<String> {
         return try {
             // Convierte la imagen a Base64

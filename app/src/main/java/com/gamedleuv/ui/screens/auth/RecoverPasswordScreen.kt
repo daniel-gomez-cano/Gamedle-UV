@@ -22,11 +22,15 @@ import androidx.navigation.NavController
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.VideoBg
 import com.gamedleuv.ui.navigation.Routes
+import com.gamedleuv.ui.viewmodel.AuthUiState
+import com.gamedleuv.ui.viewmodel.AuthViewModel
 
 @Composable
-fun RecoverPasswordScreen(navController: NavController) {
+fun RecoverPasswordScreen(navController: NavController, authViewModel: AuthViewModel) {
 
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("")
+    }
+    val uiState by authViewModel.uiState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -114,18 +118,41 @@ fun RecoverPasswordScreen(navController: NavController) {
                 AppButton(
                     text = "Continuar",
                     onClick = {
-                        navController.navigate(Routes.GETCODE)
-                        // lógica registro
+                        authViewModel.sendPasswordReset(email) // Envia a firebase a enviar el correo de recuperacion
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
                 )
+                when (uiState) {
+
+                    is AuthUiState.Loading -> {
+
+                        CircularProgressIndicator()
+                    }
+
+                    is AuthUiState.Success -> {
+
+                        Text(
+                            text = "Correo enviado correctamente, si no aparece revise en spam",
+                            color = Color.Green
+                        )
+                    }
+
+                    is AuthUiState.Error -> {
+
+                        Text(
+                            text = (uiState as AuthUiState.Error).error,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+
+                    else -> {}
+                }
 
                 Spacer(modifier = Modifier.height(36.dp))
 
                 // Footer
-                // No está en el Figma, pero es importante tener esta acción para el usuario.
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -139,7 +166,7 @@ fun RecoverPasswordScreen(navController: NavController) {
                         text = "Inicie sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
-                            // Aqui va la ventana a la que dirige
+                            navController.navigate(Routes.LOGIN)
                         }
                     )
                 }
