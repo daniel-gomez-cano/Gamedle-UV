@@ -73,7 +73,6 @@ fun AppNavigation() {
             scope = CoroutineScope(Dispatchers.Main),
             resetPassword = ResetPasswordUserCase(repo),
             uploadProfilePicture = UploadProfilePictureUseCase(repo),
-            scope = CoroutineScope(Dispatchers.Main)
         )
     }
 
