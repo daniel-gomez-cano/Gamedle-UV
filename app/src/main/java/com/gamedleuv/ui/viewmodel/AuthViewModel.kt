@@ -1,6 +1,7 @@
 package com.gamedleuv.ui.viewmodel
 
 import com.gamedleuv.domain.model.User
+import com.gamedleuv.domain.usecase.auth.GetCurrentUserUseCase
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import com.gamedleuv.domain.usecase.auth.ResetPasswordUserCase
@@ -16,11 +17,17 @@ class AuthViewModel(
     private val loginUser: LoginUserUseCase,
     private val resetPassword: ResetPasswordUserCase,
     private val uploadProfilePicture: UploadProfilePictureUseCase,
+    private val getCurrentUser: GetCurrentUserUseCase,
     private val scope: CoroutineScope  //Fix Copilot: scope inyectado externamente
 ) {
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState
+
+    private val _isInitializing = MutableStateFlow(true)
+    val isInitializing: StateFlow<Boolean> = _isInitializing
+
+    init { loadCurrentUser() }
 
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
@@ -72,6 +79,24 @@ class AuthViewModel(
                 _profilePictureState.value = ProfilePictureState.Error(
                     result.exceptionOrNull()?.message ?: "Error subiendo foto"
                 )
+            }
+        }
+    }
+
+    private fun loadCurrentUser() {
+
+        scope.launch {
+
+            try {
+
+                val user = getCurrentUser()
+
+                _currentUser.value = user
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isInitializing.value = false
             }
         }
     }
