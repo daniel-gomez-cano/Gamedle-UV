@@ -1,5 +1,6 @@
 package com.gamedleuv.ui.screens.game
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gamedleuv.R
+import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.theme.White
 import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.viewmodel.RoomViewModel
 
@@ -37,6 +41,8 @@ fun LobbyScreen(
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
+        VideoBg(videoResId = R.raw.fondo_auth, modifier = Modifier.fillMaxSize())
+
         if (state.isLoading) {
             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         } else if (state.roomCode.isEmpty()) {
@@ -84,10 +90,12 @@ private fun LobbyInitialContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        OutlinedButton(
             onClick = onCreateRoom,
             modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(50.dp)
+            shape = RoundedCornerShape(50.dp),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent, contentColor = Color.White),
+            border = BorderStroke(width = 4.dp, color = MaterialTheme.colorScheme.primary)
         ) {
             Text("Crear sala")
         }
@@ -108,9 +116,9 @@ private fun LobbyInitialContent(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = Color.Gray,
+                unfocusedLabelColor = Color.LightGray,
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = Color.Gray
+                unfocusedBorderColor = Color.LightGray
             )
         )
 
