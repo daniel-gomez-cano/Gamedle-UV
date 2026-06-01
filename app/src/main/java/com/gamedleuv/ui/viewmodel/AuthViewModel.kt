@@ -5,6 +5,7 @@ import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import com.gamedleuv.domain.usecase.auth.ResetPasswordUserCase
 import com.gamedleuv.domain.usecase.auth.UploadProfilePictureUseCase
+import com.gamedleuv.util.toSpanishErrorMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +34,7 @@ class AuthViewModel(
                 _currentUser.value = user
                 AuthUiState.Success("Sesión iniciada :D")
             } else {
-                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")
+                AuthUiState.Error(result.exceptionOrNull()?.toSpanishErrorMessage() ?: "Error :/")
             }
         }
     }
@@ -47,7 +48,7 @@ class AuthViewModel(
                 _currentUser.value = user
                 AuthUiState.Success("Usuario registrado piola")
             } else {
-                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error :/")
+                AuthUiState.Error(result.exceptionOrNull()?.toSpanishErrorMessage() ?: "Error :/")
             }
         }
     }
@@ -86,7 +87,7 @@ class AuthViewModel(
             _uiState.value = if (result.isSuccess) {
                 AuthUiState.Success("Correo enviado")
             } else {
-                AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error")
+                AuthUiState.Error(result.exceptionOrNull()?.toSpanishErrorMessage() ?: "Error")
             }
         }
     }
