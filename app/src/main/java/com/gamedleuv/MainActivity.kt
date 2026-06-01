@@ -54,7 +54,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -104,9 +103,17 @@ fun AppNavigation() {
 
     val user by authViewModel.currentUser.collectAsState()
 
+    val firebaseUser = FirebaseAuth.getInstance().currentUser
+
+    val startDestination =
+        if (firebaseUser != null)
+            Routes.HOME
+        else
+            Routes.LOGIN
+
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = startDestination
     ) {
 
         composable(Routes.LOGIN) {
