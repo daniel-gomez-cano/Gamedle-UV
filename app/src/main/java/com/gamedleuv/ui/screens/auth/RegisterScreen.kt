@@ -216,6 +216,7 @@ fun RegisterScreen(
                         text = "Inicie Sesión",
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable {
+                            viewModel?.resetState()
                             navController?.navigate(Routes.LOGIN) {
                                 popUpTo(Routes.REGISTER) {
                                     inclusive = true
