@@ -178,6 +178,7 @@ fun LoginScreen(
      style = MaterialTheme.typography.titleSmall,
      text = "¿Olvidó su contraseña?",
      onClick = {
+      viewModel?.resetState()
       navController?.navigate(Routes.RECOVER)
      },
      modifier = Modifier
@@ -201,6 +202,7 @@ fun LoginScreen(
       text = "Regístrate",
       color = MaterialTheme.colorScheme.secondary,
       modifier = Modifier.clickable {
+       viewModel?.resetState()
        navController?.navigate(Routes.REGISTER)
       }
      )

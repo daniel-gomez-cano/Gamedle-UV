@@ -86,6 +86,17 @@ class AuthRepositoryImpl(
         return User(id = firebaseUser.uid, email = firebaseUser.email, username = null)
     }
 
+    override suspend fun getCurrentUserData(): User? {
+
+        val firebaseUser = firebaseAuth.currentUser
+            ?: return null
+
+        return fetchUserFromFirestore(
+            firebaseUser.uid,
+            firebaseUser.email
+        )
+    }
+
     override fun logout() {
         firebaseAuth.signOut()
     }

@@ -4,10 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +21,7 @@ import com.gamedleuv.data.remote.api.RetrofitInstance
 import com.gamedleuv.data.repository.AuthRepositoryImpl
 import com.gamedleuv.data.repository.GameRepositoryImpl
 import com.gamedleuv.data.repository.RoomRepositoryImpl
+import com.gamedleuv.domain.usecase.auth.GetCurrentUserUseCase
 import com.gamedleuv.domain.usecase.auth.LoginUserUseCase
 import com.gamedleuv.domain.usecase.auth.RegisterUserUseCase
 import com.gamedleuv.domain.usecase.auth.UploadProfilePictureUseCase
@@ -54,10 +60,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
 
     val repo = remember {
         AuthRepositoryImpl(
@@ -72,6 +78,7 @@ fun AppNavigation() {
             loginUser = LoginUserUseCase(repo),
             scope = CoroutineScope(Dispatchers.Main),
             resetPassword = ResetPasswordUserCase(repo),
+            getCurrentUser = GetCurrentUserUseCase(repo),
             uploadProfilePicture = UploadProfilePictureUseCase(repo),
         )
     }
@@ -103,10 +110,27 @@ fun AppNavigation() {
     )
 
     val user by authViewModel.currentUser.collectAsState()
+    val isInitializing by authViewModel.isInitializing.collectAsState()
+
+    if (isInitializing) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    val startDestination =
+        if (user != null)
+            Routes.HOME
+        else
+            Routes.LOGIN
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = startDestination
     ) {
 
         composable(Routes.LOGIN) {
