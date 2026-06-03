@@ -28,6 +28,7 @@ import coil.compose.AsyncImage
 import com.gamedleuv.R
 import com.gamedleuv.ui.components.AppButton
 import com.gamedleuv.ui.components.VideoBg
+import com.gamedleuv.ui.navigation.Routes
 import com.gamedleuv.ui.viewmodel.AuthViewModel
 import com.gamedleuv.ui.viewmodel.ProfilePictureState
 
@@ -167,7 +168,8 @@ fun ProfileScreen(navController: NavController, viewModel: AuthViewModel) {
                 text = "Cambiar Contraseña",
                 transparent = true,
                 onClick = {
-                    //Se redirige a las pantallas de recuperar contraseña
+                    viewModel.resetState()
+                    navController.navigate(Routes.RECOVER)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
