@@ -88,6 +88,7 @@ class RoomViewModel(
 
     private var lastRound = -1
     private var lastStatus = ""
+    private var lastRoundEndTime = 0L
     private fun observeRoom(code: String) {
         viewModelScope.launch {
             roomRepository.observeRoom(code).collect { room ->
@@ -97,6 +98,10 @@ class RoomViewModel(
 
                 if (room.currentRound != lastRound) {
                     lastRound = room.currentRound
+                }
+
+                if (room.roundEndTime != lastRoundEndTime) {
+                    lastRoundEndTime = room.roundEndTime
                     startTimer()
                 }
 

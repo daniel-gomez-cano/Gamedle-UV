@@ -181,6 +181,21 @@ class RoomRepositoryImpl(
 
         if (shouldAdvanceRound) {
             nextRound(code, room)
+        } else {
+
+            rooms.child(code).updateChildren(
+                mapOf(
+                    "players/player1/hasAnswered" to false,
+                    "players/player2/hasAnswered" to false,
+                    "players/player1/answeredCorrectly" to false,
+                    "players/player2/answeredCorrectly" to false,
+                    "players/player1/responseTime" to 0L,
+                    "players/player2/responseTime" to 0L,
+                    "roundEndTime" to System.currentTimeMillis() + 30000,
+                    "status" to "playing"
+                )
+            ).await()
+
         }
     }
 
@@ -195,7 +210,7 @@ class RoomRepositoryImpl(
                 "currentRound" to (room.currentRound + 1),
                 "roundEndTime" to System.currentTimeMillis() + 30000,
                 "status" to "playing",
-                "revealedSectors" to emptyList<Int>(),
+                "revealedSectors" to listOf((0..8).random()),
 
                 "players/player1/hasAnswered" to false,
                 "players/player2/hasAnswered" to false,
