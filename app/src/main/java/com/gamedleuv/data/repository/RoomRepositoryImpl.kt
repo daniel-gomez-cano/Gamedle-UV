@@ -148,6 +148,7 @@ class RoomRepositoryImpl(
             else -> {
                 p1Lives--
                 p2Lives--
+                revealNextSector(code)
             }
         }
 
@@ -177,6 +178,7 @@ class RoomRepositoryImpl(
                 "currentRound" to (room.currentRound + 1),
                 "roundEndTime" to System.currentTimeMillis() + 30000,
                 "status" to "playing",
+                "revealedSectors" to emptyList<Int>(),
 
                 "players/player1/hasAnswered" to false,
                 "players/player2/hasAnswered" to false,
@@ -221,5 +223,20 @@ class RoomRepositoryImpl(
             rooms.child(code).updateChildren(updates).await()
         }
         evaluateRound(code)
+    }
+    //When haces tus momos en el codigo
+    override suspend fun revealNextSector(code: String) {
+        val snapshot = rooms.child(code).get().await()
+        val room = snapshot.getValue(RoomState::class.java) ?: return
+    //el futuro es hoy oiste viejo
+        val allSectors = (0..8).toList()
+        val revealed = room.revealedSectors.toMutableList()
+    //pero copilot te marca error
+        // Elige un sector aleatorio que no esté revelado aún
+        val remaining = allSectors.filter { it !in revealed }
+        if (remaining.isEmpty()) return
+    //oh mi commit
+        revealed.add(remaining.random())
+        rooms.child(code).child("revealedSectors").setValue(revealed).await()
     }
 }

@@ -27,6 +27,7 @@ import com.gamedleuv.ui.viewmodel.enums.PvpGameResult
 import com.gamedleuv.ui.viewmodel.RoomViewModel
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.gamedleuv.ui.components.BlurredImage
 
 @Composable
 fun PvpGameScreen(
@@ -227,15 +228,13 @@ fun PvpGameScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // IMAGEN DEL JUEGO
-                    //TODO: Esta no es una imagen con blur, falta aplicar esa logica
-                    AsyncImage(
-                        model = room.gameImageUrl,
-                        contentDescription = "portada del juego",
-                        contentScale = ContentScale.Crop,
+                    // IMAGEN DEL JUEGO con blur sincronizado
+                    BlurredImage(
+                        imageUrl = room.gameImageUrl,
+                        revealedSectors = room.revealedSectors, // ← viene de Firebase
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(0.65f)
+                            .fillMaxHeight(0.45f)
                             .clip(RoundedCornerShape(8.dp))
                     )
 
