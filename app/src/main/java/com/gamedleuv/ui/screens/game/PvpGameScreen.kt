@@ -231,10 +231,10 @@ fun PvpGameScreen(
                     // IMAGEN DEL JUEGO con blur sincronizado
                     BlurredImage(
                         imageUrl = room.gameImageUrl,
-                        revealedSectors = room.revealedSectors, // ← viene de Firebase
+                        revealedSectors = room.revealedSectors,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(0.45f)
+                            .aspectRatio(2f / 3f)
                             .clip(RoundedCornerShape(8.dp))
                     )
 

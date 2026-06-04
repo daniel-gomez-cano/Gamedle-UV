@@ -72,6 +72,15 @@ class RoomRepositoryImpl(
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val room = snapshot.getValue(RoomState::class.java)
+                android.util.Log.d(
+                        "ROOM_DEBUG",
+                        """
+            status=${room?.status}
+            roundEndTime=${room?.roundEndTime}
+            image=${room?.gameImageUrl}
+            sectors=${room?.revealedSectors}
+            """.trimIndent()
+                    )
                 trySend(room)
             }
             override fun onCancelled(error: DatabaseError) {
