@@ -205,6 +205,7 @@ class RoomViewModel(
         val state = _uiState.value
         viewModelScope.launch {
             try {
+                roomRepository.revealNextSector(state.roomCode) //
                 roomRepository.skipTurn(state.roomCode, state.myUid)
             } catch (e: Exception) {
                 e.printStackTrace()

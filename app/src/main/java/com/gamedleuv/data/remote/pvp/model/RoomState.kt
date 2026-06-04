@@ -7,7 +7,8 @@ data class RoomState(
     val currentRound: Int = 1,
     val roundStartTime: Long = 0L,
     val roundEndTime: Long = 0L,
-    val players: Map<String, PlayerState> = emptyMap()
+    val players: Map<String, PlayerState> = emptyMap(),
+    val revealedSectors: ArrayList<Int> = arrayListOf() //Hola daniel si recuerdas cuando te dije que solo tendriamos que guardar un array?
 )
 
 data class PlayerState(

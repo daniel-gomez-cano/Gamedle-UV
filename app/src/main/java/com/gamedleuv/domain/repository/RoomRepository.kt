@@ -10,4 +10,6 @@ interface RoomRepository {
     suspend fun submitGuess(code: String, uid: String, guess: String, gameName: String)
     suspend fun skipTurn(code: String, uid: String)
     suspend fun evaluateTimer(code: String)
+
+    suspend fun revealNextSector(code: String)
 }
