@@ -233,8 +233,9 @@ fun PvpGameScreen(
                         imageUrl = room.gameImageUrl,
                         revealedSectors = room.revealedSectors,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(0.9f)
                             .aspectRatio(2f / 3f)
+                            .align(Alignment.CenterHorizontally)
                             .clip(RoundedCornerShape(8.dp))
                     )
 

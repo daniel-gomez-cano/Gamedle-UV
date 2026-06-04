@@ -37,6 +37,7 @@ class RoomRepositoryImpl(
             gameName = game?.name ?: "",
             status = "waiting",
             roundEndTime = System.currentTimeMillis() + 30000,
+            revealedSectors = listOf((0..8).random()),
             players = mapOf(
                 "player1" to PlayerState(
                     uid = uid,
@@ -143,21 +144,26 @@ class RoomRepositoryImpl(
 
         var p1Lives = p1.lives
         var p2Lives = p2.lives
-
+        var shouldAdvanceRound = false
         when { // Evaluamos las condiciones de ganar, quien responde antes, si uno se equivoca o si ninguno responde
+
             p1.answeredCorrectly && p2.answeredCorrectly -> {
                 if (p1.responseTime > p2.responseTime) p1Lives-- else p2Lives--
+                shouldAdvanceRound = true
             }
             p1.answeredCorrectly && !p2.answeredCorrectly -> {
                 p2Lives--
+                shouldAdvanceRound = true
             }
             !p1.answeredCorrectly && p2.answeredCorrectly -> {
                 p1Lives--
+                shouldAdvanceRound = true
             }
             else -> {
                 p1Lives--
                 p2Lives--
                 revealNextSector(code)
+                shouldAdvanceRound = false //este lo puse para mantener la logica aunque no es realmente necesario
             }
         }
 
@@ -173,7 +179,9 @@ class RoomRepositoryImpl(
             return
         }
 
-        nextRound(code, room)
+        if (shouldAdvanceRound) {
+            nextRound(code, room)
+        }
     }
 
 
