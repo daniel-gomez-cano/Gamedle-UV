@@ -37,6 +37,7 @@ class RoomRepositoryImpl(
             gameName = game?.name ?: "",
             status = "waiting",
             roundEndTime = System.currentTimeMillis() + 30000,
+            revealedSectors = listOf((0..8).random()),
             players = mapOf(
                 "player1" to PlayerState(
                     uid = uid,
@@ -72,6 +73,15 @@ class RoomRepositoryImpl(
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val room = snapshot.getValue(RoomState::class.java)
+                android.util.Log.d(
+                        "ROOM_DEBUG",
+                        """
+            status=${room?.status}
+            roundEndTime=${room?.roundEndTime}
+            image=${room?.gameImageUrl}
+            sectors=${room?.revealedSectors}
+            """.trimIndent()
+                    )
                 trySend(room)
             }
             override fun onCancelled(error: DatabaseError) {
@@ -134,21 +144,26 @@ class RoomRepositoryImpl(
 
         var p1Lives = p1.lives
         var p2Lives = p2.lives
-
+        var shouldAdvanceRound = false
         when { // Evaluamos las condiciones de ganar, quien responde antes, si uno se equivoca o si ninguno responde
+
             p1.answeredCorrectly && p2.answeredCorrectly -> {
                 if (p1.responseTime > p2.responseTime) p1Lives-- else p2Lives--
+                shouldAdvanceRound = true
             }
             p1.answeredCorrectly && !p2.answeredCorrectly -> {
                 p2Lives--
+                shouldAdvanceRound = true
             }
             !p1.answeredCorrectly && p2.answeredCorrectly -> {
                 p1Lives--
+                shouldAdvanceRound = true
             }
             else -> {
                 p1Lives--
                 p2Lives--
                 revealNextSector(code)
+                shouldAdvanceRound = false //este lo puse para mantener la logica aunque no es realmente necesario
             }
         }
 
@@ -164,7 +179,24 @@ class RoomRepositoryImpl(
             return
         }
 
-        nextRound(code, room)
+        if (shouldAdvanceRound) {
+            nextRound(code, room)
+        } else {
+
+            rooms.child(code).updateChildren(
+                mapOf(
+                    "players/player1/hasAnswered" to false,
+                    "players/player2/hasAnswered" to false,
+                    "players/player1/answeredCorrectly" to false,
+                    "players/player2/answeredCorrectly" to false,
+                    "players/player1/responseTime" to 0L,
+                    "players/player2/responseTime" to 0L,
+                    "roundEndTime" to System.currentTimeMillis() + 30000,
+                    "status" to "playing"
+                )
+            ).await()
+
+        }
     }
 
 
@@ -178,7 +210,7 @@ class RoomRepositoryImpl(
                 "currentRound" to (room.currentRound + 1),
                 "roundEndTime" to System.currentTimeMillis() + 30000,
                 "status" to "playing",
-                "revealedSectors" to emptyList<Int>(),
+                "revealedSectors" to listOf((0..8).random()),
 
                 "players/player1/hasAnswered" to false,
                 "players/player2/hasAnswered" to false,
