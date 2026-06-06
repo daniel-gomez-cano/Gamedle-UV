@@ -160,8 +160,6 @@ class RoomRepositoryImpl(
                 shouldAdvanceRound = true
             }
             else -> {
-                p1Lives--
-                p2Lives--
                 revealNextSector(code)
                 shouldAdvanceRound = false //este lo puse para mantener la logica aunque no es realmente necesario
             }
