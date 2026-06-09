@@ -35,7 +35,8 @@ data class GameUiState(
 data class GameHint(
     val releaseYear: String,
     val publisher: String,
-    val genre: String
+    val genre: String,
+    val hangmanDisplay: String      // Texto tipo ahorcado precalculado, listo para mostrar
 )
 
 class GameViewModel(
@@ -249,11 +250,7 @@ class GameViewModel(
     fun onUseHint() {
         val state = _uiState.value
         if (!state.hintUnlocked || state.hintUsed) return
-        val hint = GameHint(
-            releaseYear = currentGame?.releaseYear ?: "Desconocido",
-            publisher   = currentGame?.publisher   ?: "Desconocido",
-            genre       = currentGame?.genre       ?: "Desconocido"
-        )
+        val hint = buildHint()
         _uiState.value = state.copy(
             currentHint = hint,
             hintUsed = true
@@ -267,11 +264,7 @@ class GameViewModel(
     fun onReopenHint() {
         val state = _uiState.value
         if (!state.hintUsed) return
-        val hint = GameHint(
-            releaseYear = currentGame?.releaseYear ?: "Desconocido",
-            publisher   = currentGame?.publisher   ?: "Desconocido",
-            genre       = currentGame?.genre       ?: "Desconocido"
-        )
+        val hint = buildHint()
         _uiState.value = state.copy(currentHint = hint)
     }
 
@@ -289,5 +282,70 @@ class GameViewModel(
         gamesWithoutHint = 0
         _uiState.value = GameUiState()
         loadRandomGame(isFirstLoad = true)
+    }
+
+    // ─── Construcción de pista ───────────────────────────────────────────────
+
+    /** Construye el GameHint con el display de ahorcado ya calculado. */
+    private fun buildHint(): GameHint = GameHint(
+        releaseYear    = currentGame?.releaseYear ?: "Desconocido",
+        publisher      = currentGame?.publisher   ?: "Desconocido",
+        genre          = currentGame?.genre       ?: "Desconocido",
+        hangmanDisplay = buildHangmanDisplay(currentGame?.name ?: "")
+    )
+
+    /**
+     * Genera el texto tipo ahorcado para el nombre del juego.
+     *
+     * Reglas:
+     * - Se revelan siempre las 2 primeras y 2 últimas letras no-espacio.
+     * - Los espacios se conservan como separadores.
+     * - Nombres largos (>30 chars y >4 palabras): se muestran las 2 primeras
+     *   y 2 últimas palabras separadas por " ... ".
+     *
+     * Ejemplos:
+     *   "Super Mario Bros"                  → "Su___ _____ __os"
+     *   "The Legend of Zelda"               → "Th_ ______ __ ___da"
+     *   "Tom Clancy's Rainbow Six Siege"    → "To_ _______'_ ... ___ ____ge"
+     */
+    private fun buildHangmanDisplay(name: String): String {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return ""
+
+        // Índices de caracteres no-espacio
+        val nonSpaceIndices = trimmed.indices.filter { trimmed[it] != ' ' }
+
+        // Conjunto de índices a revelar: 2 primeros y 2 últimos caracteres no-espacio
+        val revealIndices = buildSet {
+            if (nonSpaceIndices.size >= 1) add(nonSpaceIndices[0])
+            if (nonSpaceIndices.size >= 2) add(nonSpaceIndices[1])
+            if (nonSpaceIndices.size >= 3) add(nonSpaceIndices[nonSpaceIndices.size - 1])
+            if (nonSpaceIndices.size >= 4) add(nonSpaceIndices[nonSpaceIndices.size - 2])
+        }
+
+        // Máscara completa: letras reveladas, resto como '_', espacios conservados
+        val fullyMasked = trimmed.mapIndexed { i, c ->
+            when {
+                c == ' '        -> ' '
+                i in revealIndices -> c
+                else            -> '_'
+            }
+        }.joinToString("")
+
+        val words = trimmed.split(" ")
+        val isLong = trimmed.length > 30 && words.size > 4
+        if (!isLong) return fullyMasked
+
+        val firstPart = words.take(2).joinToString(" ")
+        val lastPart  = words.takeLast(2).joinToString(" ")
+
+        // Si las dos partes solapan o casi solapan, mostrar todo completo
+        if (firstPart.length + lastPart.length + 5 >= trimmed.length) return fullyMasked
+
+        val maskedFirst = fullyMasked.substring(0, firstPart.length)
+        val lastPartStart = trimmed.length - lastPart.length
+        val maskedLast  = fullyMasked.substring(lastPartStart)
+
+        return "$maskedFirst ... $maskedLast"
     }
 }
