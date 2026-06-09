@@ -1,5 +1,6 @@
 package com.gamedleuv.data.repository
 
+import android.R
 import com.gamedleuv.data.remote.pvp.model.RoomState
 import com.gamedleuv.data.remote.pvp.model.PlayerState
 import com.gamedleuv.domain.repository.GameRepository
@@ -19,6 +20,7 @@ class RoomRepositoryImpl(
 ) : RoomRepository {
 
     private val rooms = db.getReference("rooms")
+    private var is_image_empty = false
 
     // Genera código de 4 letras aleatorio
     private fun generateCode(): String {
@@ -160,10 +162,8 @@ class RoomRepositoryImpl(
                 shouldAdvanceRound = true
             }
             else -> {
-                p1Lives--
-                p2Lives--
                 revealNextSector(code)
-                shouldAdvanceRound = false //este lo puse para mantener la logica aunque no es realmente necesario
+                shouldAdvanceRound = is_image_empty //este lo puse para mantener la logica aunque no es realmente necesario
             }
         }
 
@@ -202,6 +202,7 @@ class RoomRepositoryImpl(
 
     private suspend fun nextRound(code: String, room: RoomState) { // para la siguiente ronda cambia de juego y restaura el timer
         val nextGame = gameRepository.getRandomGame()
+        is_empty(false)
 
         rooms.child(code).updateChildren(
             mapOf(
@@ -256,6 +257,10 @@ class RoomRepositoryImpl(
         }
         evaluateRound(code)
     }
+
+    private fun is_empty(empty: Boolean) {
+        is_image_empty = empty
+    }
     //When haces tus momos en el codigo
     override suspend fun revealNextSector(code: String) {
         val snapshot = rooms.child(code).get().await()
@@ -266,7 +271,9 @@ class RoomRepositoryImpl(
     //pero copilot te marca error
         // Elige un sector aleatorio que no esté revelado aún
         val remaining = allSectors.filter { it !in revealed }
-        if (remaining.isEmpty()) return
+        if (remaining.isEmpty()) {
+            is_empty(true)
+            return}
     //oh mi commit
         revealed.add(remaining.random())
         rooms.child(code).child("revealedSectors").setValue(revealed).await()
