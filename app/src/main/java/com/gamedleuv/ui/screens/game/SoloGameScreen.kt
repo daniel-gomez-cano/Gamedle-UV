@@ -60,8 +60,10 @@ fun SoloGameScreen(
         onGuess = gameViewModel::onGuess,
         onUseHint = gameViewModel::onUseHint,
         onDismissGameOver = gameViewModel::onDismissGameOver,
-        onDismissHint = gameViewModel::onDismissHint,       // ← nuevo
+        onDismissHint = gameViewModel::onDismissHint,
         onReopenHint = gameViewModel::onReopenHint,
+        isProcessingGuess = gameState.isProcessingGuess,
+        isRevealingAnswer = gameState.isRevealingAnswer
     )
 }
 
@@ -88,7 +90,9 @@ private fun SoloGameContent(
     onDismissHint: () -> Unit,
     onReopenHint: () -> Unit,
     onDismissGameOver: () -> Unit,
-    gameImageUrl: String?
+    gameImageUrl: String?,
+    isRevealingAnswer: Boolean,
+    isProcessingGuess: Boolean
 ) {
 
     if (isGameOver) {
@@ -161,6 +165,7 @@ private fun SoloGameContent(
                     Text("Entendido", color = MaterialTheme.colorScheme.tertiary)
                 }
             }
+
         )
     }
 
@@ -193,7 +198,7 @@ private fun SoloGameContent(
                         painter = painterResource(id = R.drawable.virus),
                         contentDescription = "logo",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(32.dp) 
+                        modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -283,7 +288,8 @@ private fun SoloGameContent(
                         modifier = Modifier
                             .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
                             .weight(1f)
-                            .height(50.dp)
+                            .height(50.dp),
+                        enabled = !isRevealingAnswer
                     )
 
 
@@ -299,6 +305,8 @@ private fun SoloGameContent(
                             hintUsed                  -> onReopenHint // ya usada: solo reabre el dialog
                             else                      -> ({ })        // bloqueada: no hace nada
                         },
+
+                        enabled = !isRevealingAnswer ,
                         modifier = Modifier
                             .border(
                                 width = 4.dp,
@@ -311,6 +319,7 @@ private fun SoloGameContent(
                             )
                             .weight(1f)
                             .height(50.dp)
+
                     )
 
                     Text(
@@ -346,8 +355,9 @@ private fun SoloGameContent(
                         img = R.drawable.arrow,
                         transparent = true,
                         iconSize = 24.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        onClick = onGuess,
+                        color = if (isRevealingAnswer || isProcessingGuess) Color.Gray
+                        else MaterialTheme.colorScheme.primary,
+                        onClick = if (isRevealingAnswer || isProcessingGuess) ({}) else onGuess,
                         modifier = Modifier.size(56.dp)
                     )
                 }
@@ -399,7 +409,10 @@ fun SoloGameScreenPreview() {
             onDismissHint = {},
             onReopenHint = {},
             onDismissGameOver = {},
-            gameImageUrl = null
+            isRevealingAnswer = false,
+            isProcessingGuess = false,
+            gameImageUrl = null,
+
         )
     }
 }

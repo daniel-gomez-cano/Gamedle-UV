@@ -27,7 +27,9 @@ data class GameUiState(
     val hintUsed: Boolean = false,
     val hintGamesLeft: Int = 0,         // Juegos restantes para recargar la pista (0 = disponible)
     val currentHint: GameHint? = null,
-    val isGameOver: Boolean = false
+    val isGameOver: Boolean = false,
+    val isRevealingAnswer: Boolean = false,
+    val isProcessingGuess: Boolean = false
 )
 
 data class GameHint(
@@ -159,10 +161,16 @@ class GameViewModel(
     // ─── Adivinanza ─────────────────────────────────────────────────────────
 
     fun onGuess() {
+        if (_uiState.value.isProcessingGuess) return // <- bloquea spam
+        _uiState.value = _uiState.value.copy(isProcessingGuess = true)
+
         val currentState = _uiState.value
         val isCorrect = currentState.searchQuery.trim()
             .equals(currentGame?.name?.trim(), ignoreCase = true)
-        if (isCorrect) handleCorrectGuess() else showSector()
+        if (isCorrect) handleCorrectGuess() else {
+            showSector()
+            _uiState.value = _uiState.value.copy(isProcessingGuess = false)
+        }
     }
 
     private fun handleCorrectGuess() {
@@ -172,10 +180,12 @@ class GameViewModel(
         _uiState.value = _uiState.value.copy(
             revealedSectors = (0..8).toList(),
             lives = _uiState.value.maxLives,
-            streak = newStreak
+            streak = newStreak,
+            isProcessingGuess = true // mantiene bloqueado durante el delay
         )
         viewModelScope.launch {
             delay(1400)
+            _uiState.value = _uiState.value.copy(isProcessingGuess = false)
             loadRandomGame()
         }
     }
@@ -202,29 +212,35 @@ class GameViewModel(
         val newLives = if (current > 0) current - 1 else 0
         val isGameOver = newLives == 0
 
-        _uiState.value = _uiState.value.copy(
-            lives = newLives,
-            isGameOver = isGameOver
-        )
-
         if (isGameOver) {
             consecutiveWins = 0
             val finalStreak = _uiState.value.streak
 
-            val uid = authRepository.getCurrentUser()?.id
-            if (uid != null) {
-                viewModelScope.launch {
+            // Revela toda la imagen antes del game over
+            _uiState.value = _uiState.value.copy(
+                lives = newLives,
+                revealedSectors = (0..8).toList(), // ← toda la imagen
+                isRevealingAnswer = true
+            )
+
+            viewModelScope.launch {
+                val uid = authRepository.getCurrentUser()?.id
+                if (uid != null) {
                     val result = authRepository.updateStreakIfHigher(uid, finalStreak)
-                    result.onSuccess {
-                        Log.d("STREAK_DEBUG", "Racha guardada: $finalStreak para uid: $uid")
-                    }
-                    result.onFailure {
-                        Log.e("STREAK_DEBUG", "Error guardando racha: ${it.message}")
-                    }
+                    result.onSuccess { Log.d("STREAK_DEBUG", "Racha guardada: $finalStreak") }
+                    result.onFailure { Log.e("STREAK_DEBUG", "Error guardando racha: ${it.message}") }
+                } else {
+                    Log.e("STREAK_DEBUG", "uid nulo, no se guardó la racha")
                 }
-            } else {
-                Log.e("STREAK_DEBUG", "uid nulo, no se guardó la racha")
+
+                delay(3000) // ← 3 segundos mostrando la imagen completa
+                _uiState.value = _uiState.value.copy(
+                    isRevealingAnswer = false,
+                    isGameOver = true
+                )
             }
+        } else {
+            _uiState.value = _uiState.value.copy(lives = newLives)
         }
     }
 
