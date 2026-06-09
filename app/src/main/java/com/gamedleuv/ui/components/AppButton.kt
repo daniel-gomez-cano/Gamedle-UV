@@ -25,6 +25,7 @@ fun AppButton(
     style: TextStyle = MaterialTheme.typography.labelLarge,
     text: String,
     transparent: Boolean = false,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Box(
@@ -35,7 +36,7 @@ fun AppButton(
                 else MaterialTheme.colorScheme.surface
             )
             .border(4.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50.dp))
-            .clickable { onClick() }
+            .clickable(enabled = enabled) { onClick() }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
