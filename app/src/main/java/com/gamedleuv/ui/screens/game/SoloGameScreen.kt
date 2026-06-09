@@ -15,9 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gamedleuv.R
 import com.gamedleuv.domain.model.User
@@ -155,7 +157,8 @@ private fun SoloGameContent(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    HintRow(label = "Año",         value = currentHint.releaseYear)
+                    HangmanHintRow(hangmanDisplay = currentHint.hangmanDisplay)
+                    HintRow(label = "Año",          value = currentHint.releaseYear)
                     HintRow(label = "Distribuidor", value = currentHint.publisher)
                     HintRow(label = "Género",       value = currentHint.genre)
                 }
@@ -366,7 +369,9 @@ private fun SoloGameContent(
     }
 }
 
-// Fila auxiliar para el dialog de pista
+// ─── Composables auxiliares del dialog de pista ─────────────────────────────
+
+/** Fila estándar: etiqueta coloreada + valor. */
 @Composable
 private fun HintRow(label: String, value: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -378,6 +383,33 @@ private fun HintRow(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Fila del nombre enmascarado.
+ * Recibe el texto ya calculado por el ViewModel y lo muestra
+ * con fuente monoespaciada para que los guiones bajos queden alineados.
+ */
+@Composable
+private fun HangmanHintRow(hangmanDisplay: String) {
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = "Nombre:",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+        Text(
+            text = hangmanDisplay,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                letterSpacing = 1.5.sp
+            ),
             color = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -399,7 +431,12 @@ fun SoloGameScreenPreview() {
             streak = 5,
             hintUnlocked = true,
             hintUsed = false,
-            currentHint = null,
+            currentHint = GameHint(
+                releaseYear    = "1998",
+                publisher      = "Nintendo",
+                genre          = "Acción-Aventura",
+                hangmanDisplay = "Th_ ______ __ ___da"
+            ),
             isGameOver = false,
             onGameSelected = {},
             onSkip = {},

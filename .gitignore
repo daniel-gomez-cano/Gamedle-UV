@@ -60,7 +60,7 @@ Desktop.ini
 *.keystore
 
 # Firebase configuration (sensitive data)
-google-services.json
+app/src/google-services.json
 */google-services.json
 # Firebase
 app/google-services.json
