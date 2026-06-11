@@ -1,5 +1,6 @@
 package com.gamedleuv.ui.screens.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,7 +45,8 @@ fun HomeScreen(
         streak = streak,
         onSoloClick = onSoloClick,
         onMultiClick = onMultiClick,
-        onProfileClick = { navController.navigate(Routes.PROFILE) }
+        onProfileClick = { navController.navigate(Routes.PROFILE) },
+        onLoginClick = { navController.navigate(Routes.LOGIN) }
     )
 }
 
@@ -54,7 +56,8 @@ private fun HomeContent(
     streak: Int,
     onSoloClick: () -> Unit,
     onMultiClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -158,6 +161,26 @@ private fun HomeContent(
 
             Spacer(modifier = Modifier.weight(1f))
 
+            // Botón Cambiar Cuenta
+            OutlinedButton(
+                onClick = onLoginClick,
+                modifier = Modifier.height(35.dp),
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color.Transparent
+                )
+            ) {
+                Text(
+                    text = "Cambiar Cuenta",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+
             Text(
                 text = "Inspirado en gamedle.wtf",
                 color = Color.Gray,
@@ -176,7 +199,8 @@ fun HomeScreenPreview() {
             streak = 15,
             onSoloClick = {},
             onMultiClick = {},
-            onProfileClick = {}
+            onProfileClick = {},
+            onLoginClick = {}
         )
     }
 }

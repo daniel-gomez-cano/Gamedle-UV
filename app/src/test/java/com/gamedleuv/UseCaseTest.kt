@@ -37,6 +37,9 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun sendPasswordReset(email: String) = resetPasswordResult
     override suspend fun uploadProfilePicture(uid: String, imageBytes: ByteArray) = uploadPictureResult
     override suspend fun updateProfilePictureUrl(uid: String, url: String) = Result.success(Unit)
+    override suspend fun getCurrentUserData(): User? {
+        TODO("Not yet implemented")
+    }
 }
 
 /**
