@@ -40,11 +40,12 @@ class AuthViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeRepo = FakeAuthRepository()
         viewModel = AuthViewModel(
-            registerUser         = RegisterUserUseCase(fakeRepo),
-            loginUser            = LoginUserUseCase(fakeRepo),
-            resetPassword        = ResetPasswordUserCase(fakeRepo),
+            registerUser = RegisterUserUseCase(fakeRepo),
+            loginUser = LoginUserUseCase(fakeRepo),
+            resetPassword = ResetPasswordUserCase(fakeRepo),
             uploadProfilePicture = UploadProfilePictureUseCase(fakeRepo),
-            scope                = CoroutineScope(testDispatcher)
+            scope = CoroutineScope(testDispatcher),
+            getCurrentUser = TODO()
         )
     }
 
